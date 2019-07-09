@@ -1,0 +1,43 @@
+<button (click)="userListModal.open()" type="button" class="btn btn-default">
+    <span class="glyphicon  glyphicon-plus">&nbsp;</span>
+    <b>New Folder</b>
+  </button>
+  <!-- <modal #userListModal class="launch_modal_search colored-header colored-header-primary">
+  <modal-header> 
+      <div class="modal-header">
+            <h3 class="modal-title">Create Folder - {{folderFor}}</h3>
+        </div>
+    </modal-header> 	
+    <modal-content class="launch_modal_content">
+      <div class="col-sm-10">
+      <label><h4>Select User</h4></label>
+        <input auto-complete [(ngModel)]="userName" min-chars="2" [source]="userSearchUrl" (valueChanged)="setFolderName($event)" display-property-name="employeeName" name="userName" class="form-control" />
+        <br>
+        <button (click)="createFolder(userListModal)" class="btn btn-primary btn-block" type="button">Create Folder</button>
+      </div>
+    </modal-content>
+  </modal> -->
+  <modal #userListModal id="newFolder" class="launch_modal_search colored-header colored-header-primary newFolderModal" (onClose)="clearMsg();">
+  <modal-header> 
+      <div class="modal-header">
+            <h3 class="modal-title">Create Folder - {{folderFor}}</h3>
+        </div>
+    </modal-header> 	
+    <modal-content class="launch_modal_content">
+      
+      <div class="col-sm-10" style="height:250px;">
+      <label><h4>Select User</h4></label>
+        <input auto-complete [(ngModel)]="userName" min-chars="2" [source]="userSearchUrl" (valueChanged)="setFolderName($event)" display-property-name="employeeName" name="userName" class="form-control" />
+        <br>
+       <div id="folderMsg" style="display : none; color : red">Folder already exist</div>
+        
+       </div>
+       <div class="col-sm-offset-6 col-sm-5" >
+        <button (click)="createFolder(userListModal)" class="btn btn-primary" type="button">Create Folder</button>
+        <button class="btn btn-primary" (click)="userListModal.close();" data-dismiss="modal" type="button">Cancel</button>
+         </div>
+      </modal-content>
+    <modal-footer>
+      
+    </modal-footer>
+  </modal>

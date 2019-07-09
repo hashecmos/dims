@@ -1,0 +1,11 @@
+<!-- All filter, right-top-component -->
+<div class="btn-group">
+<button data-toggle="dropdown" type="button" class="btn btn-default dropdown-toggle" aria-expanded="true">{{filterButtonText}}
+                            <span class="caret"></span></button>
+                        <ul *ngIf="snapshot.routeConfig.path == 'inbox'" role="menu" class="dropdown-menu actions_dd_menu">
+                            <li *ngFor="let option of filterOptions"><a (click)="applyFilter(option)" class="status"><span class="circle {{option}}-circle">●</span> {{option}}</a></li>
+                        </ul>
+                        <ul *ngIf="snapshot.routeConfig.path == 'sent-item'" role="menu" class="dropdown-menu actions_dd_menu">
+                            <li *ngFor="let option of filterOptions"><a (click)="applyFilter(option)" class="status"><span class="circle {{option}}-circle">●</span> {{option}}</a></li>
+                        </ul>
+  </div>

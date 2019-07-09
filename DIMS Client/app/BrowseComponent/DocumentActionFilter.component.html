@@ -1,0 +1,33 @@
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle action_btn" data-toggle="dropdown">
+    <b>Actions</b> <span class="caret dd_caret"></span>
+  </button>
+  <ul *ngIf="!ifFolderSelected()" class="dropdown-menu actions_dd_menu" role="menu"> 
+    <!-- <li><a  data-toggle="modal" data-target="#launch123" (click)="switchTab1()" class="right-top-all-btn" ><b>Launch</b></a></li> --> 
+    <li><a (click)="openLaunchModel()" class="right-top-all-btn" ><b>Launch</b></a></li>
+    
+	<!--<li><a (click)="checkoutDoc()" [class.disabled_actn]="isSingleDocSelected()" class="right-top-all-btn"><b>{{CheckInActionText()}}</b></a></li>-->
+   <li *ngIf="!isSingleDocSelected()">
+	<a (click)="checkoutDoc()" class="right-top-all-btn"><b>{{CheckInActionText()}}</b></a>
+	</li>
+	<!--<li *ngIf="selectedDocuments[0]?.reserved" ><a (click)="cancelCheckout()" [class.disabled_actn]="isSingleDocSelected()" class="right-top-all-btn"><b>Cancel Checkout</b></a></li>-->
+	<li *ngIf="selectedDocuments[0]?.reserved && !isSingleDocSelected()"><a (click)="cancelCheckout()"  class="right-top-all-btn"><b>Cancel Checkout</b></a></li>
+   <!--<li><a (click)="notifyToDisplayProperties()" [class.disabled_actn]="isSingleDocSelected()" role="button" data-toggle="modal" data-target="#infoModal" class="right-top-all-btn"><b>Properties</b></a></li> -->
+	<li *ngIf="!isSingleDocSelected()"><a (click)="notifyToDisplayProperties()" role="button" data-toggle="modal" data-target="#infoModal" class="right-top-all-btn"><b>Properties</b></a></li>
+   <!-- <li><a (click)="openDocumentLink()" [class.disabled_actn]="isSingleDocSelected()" class="right-top-all-btn"><b>Link</b></a></li>-->
+   <li *ngIf="!isSingleDocSelected()"><a (click)="openDocumentLink()" class="right-top-all-btn"><b>Link</b></a></li>
+    <!-- <li *ngIf="newFolderOptions"><a class="right-top-all-btn" data-toggle="modal" data-target="#newfolder" role="button"><b>New Folder</b></a></li> -->
+   
+   <li *ngIf="!isMoveToEnabled()">
+   <a role="button" class="right-top-all-btn" data-toggle="modal" data-target="#moveFolder"><b>Move to folder</b></a>
+   </li>
+    <li><a (click)="downloadMultiDocument(selectedDocuments)"  class="right-top-all-btn"><b>Download</b></a></li>
+    <li><a (click)="openDocumentActionPopup(selectedDocuments, documentMailer)" role="button" data-toggle="modal" data-target="completeActionModal" class="right-top-all-btn"><b>Email</b></a></li>
+    <li><a (click)="sendMail(selectedDocuments)" role="button" class="right-top-all-btn"><b>Outlook Email</b></a></li>
+  </ul>
+  <ul *ngIf="ifFolderSelected()" class="dropdown-menu actions_dd_menu" role="menu">
+    <li><a class="right-top-all-btn" data-toggle="modal" data-target="#newfolder" role="button"><b>New Folder</b></a></li>
+  </ul>
+</div>
+
+<document-mailer #documentMailer></document-mailer>

@@ -1,0 +1,52 @@
+<!-- module-selection , left component-->
+
+<!-- <div class="btn-group">
+  <button type="button" class="btn dropdown-toggle btn_module_select module_btn" data-toggle="dropdown">
+        {{name}} <span class="caret dd_caret"></span>
+    </button>
+  <ul class="dropdown-menu module_dd_menu" role="menu">
+    <li><a routerLink="/work-flow/inbox" class="right-top-all-btn"><span class="WorkFlow-btn" >WorkFlow</span></a></li>
+    <li><a routerLink="/browse/documents/blank" class="right-top-all-btn"><span class="WorkFlow-btn" >Browse</span></a></li>
+    <li><a routerLink="/reports/report-list" class="right-top-all-btn"><span class="WorkFlow-btn" >Reports</span></a></li>
+
+  </ul>
+
+</div> -->
+ 
+ 	  <!-- <div class="aside-compose"><advance-search-modal [launch_popup_msg]="'launch_popup_msg'"></advance-search-modal></div> -->
+       <div class="aside-content"> 
+            
+                             <!--   <advance-search-modal *ngIf="workflow" [launch_popup_msg]="'launch_popup_msg'"></advance-search-modal> -->
+                              <!--  <div class="list-group">
+                                   
+                                   <a routerLink="/work-flow/inbox" [ngClass]="{'active': workflow}" class="list-group-item">
+                                       <span class="text-primary mdi mdi-trending-up icon"></span>Workflow
+                                   </a>
+                                   <a routerLink="/browse/documents/blank" [ngClass]="{'active': browse}" class="list-group-item ">
+                                       <span class="text-success mdi mdi-search-in-file icon"></span> Browse
+                                   </a>
+                                   <a routerLink="/reports/report-list" [ngClass]="{'active': report}" class="list-group-item">
+                                       <span class="text-warning mdi mdi-file-text icon"></span> Reports
+                                   </a>
+           
+                               </div> -->
+                               
+                               <div class="list-group no-padding-ontop">
+                                 <button type="button" class="btn dropdown-toggle btn-lg btn-primary btn-block" data-toggle="dropdown" (click)="update()">
+                                       {{name}} <span class="caret"></span>
+                                 </button>
+                                 <ul class="dropdown-menu btn-block" style="width:80%;" role="menu" aria-labelledby="workflow-menu">
+                                   <li><a routerLink="/work-flow/inbox"  [ngClass]="{'active': name==='WorkFlow'}" class="list-group-item"><span class="text-primary mdi mdi-trending-up icon">&nbsp;&nbsp;WorkFlow</span></a></li>
+                                   <li class="divider"></li>
+                                   <li><a routerLink="/browse/documents/blank" [ngClass]="{'active': name==='Browse'}" class="list-group-item"><span class="text-success mdi mdi-search-in-file icon" >&nbsp;&nbsp;Browse</span></a></li>
+                                   <li *ngIf="flag" class="divider" ></li>
+                                   <li *ngIf="flag" ><a routerLink="/reports/report-list" [ngClass]="{'active': name==='Report'}" class="list-group-item"><span class="text-warning mdi mdi-file-text icon">&nbsp;&nbsp;Reports</span></a></li>
+                                 </ul>
+                               </div>
+                               </div>
+                               
+                               
+           
+                   
+           
+           

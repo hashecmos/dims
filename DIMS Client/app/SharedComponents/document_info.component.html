@@ -1,0 +1,412 @@
+<!-- <div id="infoModal" class="modal fade" role="dialog"> -->
+<div id="infoModal" class="modal fade" role="dialog" style="width:1000px; height:500px; position: absolute; margin-left: 0%;">
+  <div class="colored-header colored-header-primary">
+    <!-- <div class="modal-content"> -->
+     	<div class="modal-content" style="height:500px;">
+	    <div class="modal-header">
+		  <button class="close" data-dismiss="modal" type="button" aria-label="Close"  (click)="currentTab = selectedFirstTab"><span aria-hidden="true" class="mdi mdi-close"></span></button>
+			    <modal-header>
+				           <h3 class="modal-title">Document Details</h3>
+			  	</modal-header>
+	    </div>
+      <div style="padding-left: 7%;">
+        <ul class="nav navbar-nav info_nav nav nav-tabs info_details_nav">
+          <li role="presentation" (click)="currentTab ='Properties'" [ngClass]="{'active': currentTab ==='Properties'}" class="info-doc-tabs"><a href="#first" data-toggle="tab" class="doc_info_option">Properties</a></li>
+          <li role="presentation" (click)="currentTab ='Versions'" [ngClass]="{'active': currentTab ==='Versions'}" class="info-doc-tabs"><a href="#second" data-toggle="tab" class="doc_info_option">Versions</a></li>
+          <li role="presentation" (click)="currentTab ='Folders'" [ngClass]="{'active': currentTab ==='Folders'}" class="info-doc-tabs"><a href="#htab3" data-toggle="tab" class="doc_info_option">Folders</a></li>
+          <li role="presentation" (click)="currentTab ='History'" [ngClass]="{'active': currentTab ==='History'}" class="info-doc-tabs"><a href="#htab4" data-toggle="tab" class="doc_info_option">History</a></li>
+        </ul>
+        <!-- <div class="tab-content"> -->
+        <div class="tab-content" style="height: 330px; overflow-y: auto; width: 93%;">
+          <div role="tabpanel" [ngClass]="{'active': currentTab==='Properties'}" class="tab-pane fade in doc_info_option_active" id="first">
+            <div class="info-properties">
+              <table class="table table-bordered info-doc-properties table-font" >
+                <tr *ngFor="let property of attachmentProperties">
+                <td class="info-doc-thead" *ngIf = "property.propertyName =='Document Class'">
+                    Document Class
+                  </td>
+                  <td *ngIf = "property.propertyName =='Document Class'">
+                    <label>{{property.propertyValue}} </label>
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='Confidentiality'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='Confidentiality'">
+                    <input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 2 " value="Confidential">
+                    <input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 1 " value="Non Confidential">
+                    <input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue != 1 && property.propertyValue != 2 " value="{{property.propertyValue}}">
+                  </td>
+                
+               	 <td class="info-doc-thead" *ngIf = "property.propertyName =='IsLaunched'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='IsLaunched'">
+                   <input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 1 " value="Yes">
+                    <input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 0 " value ="No">
+                  </td>
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='CorrespondenceType'">
+                    {{property.descriptiveText}}
+                  </td>
+                  
+                  <td *ngIf = "property.propertyName =='CorrespondenceType'">
+                  
+                  	<div *ngIf = "!isCreator">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 1 " value="Internal Incoming">
+                    	<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 2 " value="Internal Outgoing">
+                    	<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 3 " value="External Incoming">
+                    	<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf ="property.propertyValue == 4 " value="External Outgoing">
+                  </div>
+                  
+                  <div *ngIf = "isCreator">
+                  
+                  		<select id ="{{property.propertyName}}" name ="{{property.propertyName}}" class="form-control adv_search_textbox" name="{{property.propertyName}}">
+              		 		<option [attr.selected]="property.propertyValue == 1 ? true : null" value="1">Internal Incoming</option>
+              		 		<option [attr.selected]="property.propertyValue == 2 ? true : null" value="2">Internal Outgoing</option>
+              		 		<option [attr.selected]="property.propertyValue == 3 ? true : null" value="3">External Incoming</option>
+              		 		<option [attr.selected]="property.propertyValue == 4 ? true : null" value="4">External Outgoing</option>
+              			</select>
+                  		
+                  </div>
+                    
+                  </td>
+                  
+                 
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='DepartmentID'">
+                    Department
+                  </td>
+                  <td *ngIf = "property.propertyName =='DepartmentID'">
+                  	<div *ngFor="let department of departmentsAdv" >
+                  		<div *ngIf="property.propertyValue != undefined">
+                  			<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf="department.oldDimsDeptCode !=0 && property.propertyValue!=''  && department.oldDimsDeptCode == property.propertyValue" value="{{department.department}}">
+                  		</div>
+                    </div>
+                    
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='DocumentType'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='DocumentType'">
+                  <div *ngIf = "!isCreator">
+                  		<div *ngFor="let docType of documentType">
+                  				<div *ngIf="docType.id == property.propertyValue"><input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" value="{{docType.docType}}"></div>
+                  		</div>
+                  </div>
+                  
+                  <div *ngIf = "isCreator">
+                  
+                  		<select id ="{{property.propertyName}}" name ="{{property.propertyName}}" class="form-control adv_search_textbox" name="{{property.propertyName}}">
+              		 		<option *ngFor="let docType of documentType" value="{{docType.id}}" [attr.selected]="docType.id == property.propertyValue ? true : null">{{docType.docType}}</option>
+              			</select>
+                  		
+                  </div>
+                    
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='DocumentFrom'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='DocumentFrom'">
+                  
+                  <div *ngIf = "!isCreator">
+                  		<div *ngFor="let from of document_from">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" *ngIf="from.siteId == property.propertyValue" value="{{from.siteName}}">
+                  </div>
+                  </div>
+                  
+                  <div *ngIf = "isCreator">
+                  
+                  		<select id ="{{property.propertyName}}" name ="{{property.propertyName}}" class="form-control adv_search_textbox" name="{{property.propertyName}}" disabled>
+                  			<option></option>
+              		 		<option *ngFor="let from of document_from" value="{{from.siteId}}" [attr.selected]="from.siteId == property.propertyValue ? true : null">{{from.siteName}}</option>
+              			</select>
+                  		
+                  </div>
+                  
+                  <!-- <div *ngFor="let from of document_from">
+                  		<label *ngIf="from.siteId == property.propertyValue">{{from.siteName}}</label>
+                  </div> -->
+                    
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='DocumentTo'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='DocumentTo'">
+                  <div *ngIf = "!isCreator">
+                    <p-chips   [disabled]="true" [(ngModel)]="document_to_selected" [ngModelOptions]="{standalone: true}"  field="siteName" > </p-chips>
+                  
+                  </div>
+                  
+                  <div *ngIf = "isCreator">
+                    <p-chips    [(ngModel)]="document_to_selected" [ngModelOptions]="{standalone: true}"  field="siteName" > </p-chips>                    
+                  		<select id ="{{property.propertyName}}" [(ngModel)]="selectedSite_to"  class="form-control adv_search_textbox" name="{{property.propertyName}}" (change)="onDocToChange($event.target.value)" disabled>
+                  			<option></option>
+              		 		<option *ngFor="let from of document_to" [ngValue]="from">{{from.siteName}}</option>
+              			</select>
+                  		
+                  </div>
+                  
+                  <!-- <div *ngFor="let from of document_from">
+                  		<label *ngIf="from.siteId == property.propertyValue">{{from.siteName}}</label>
+                  </div> -->
+                    
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='ReferenceNo'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='ReferenceNo'">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}"  *ngIf = "!isCreator" value="{{property.propertyValue}}">
+                  		<input *ngIf = "isCreator" class="form-control input-sm" type="text" id ="{{property.propertyName}}" name="{{property.propertyName}}" value="{{property.propertyValue}}">
+                  </td>
+                  
+                  <!--<td class="info-doc-thead" *ngIf = "property.propertyName =='EmailSubject'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='EmailSubject'">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}"  *ngIf = "!isCreator" value="{{property.propertyValue}}">
+                  		<input *ngIf = "isCreator" class="form-control input-sm" type="text" id ="{{property.propertyName}}" name="{{property.propertyName}}" value="{{property.propertyValue}}">
+                  </td>-->
+                  
+                   <td class="info-doc-thead" *ngIf = "property.propertyName =='EmailSubject'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='EmailSubject'">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}"  *ngIf = "!isCreator" value="{{property.propertyValue}}">
+                  		<input *ngIf = "isCreator" class="form-control input-sm" type="text" id ="{{property.propertyName}}" name="{{property.propertyName}}" value="{{property.propertyValue}}" maxlength="400">
+                  </td>
+
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='DateReceived'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='DateReceived'">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}"  *ngIf = "!isCreator" value="{{property.propertyValue}}">
+                  		<!-- <input *ngIf = "isCreator" class="form-control input-sm" (keyup)="validateDate(property.propertyName)" type="text" id="{{property.propertyName}}" name="{{property.propertyName}}" value="{{property.propertyValue}}"> -->
+                  		<div *ngIf = "isCreator"><my-date-picker id = "{{property.propertyName}}recDate" name="property.propertyName" [selDate]="recDate" [options]="myDatePickerOptions"></my-date-picker></div>
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName =='DocumentDate'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName =='DocumentDate'">
+                  		<input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}"  *ngIf = "!isCreator" value="{{property.propertyValue}}">
+                  		<!-- <input *ngIf = "isCreator" class="form-control input-sm" type="text" (keyup)="validateDate(property.propertyName)" id="{{property.propertyName}}" name="{{property.propertyName}}" value="{{property.propertyValue}}"> -->
+                  		<div *ngIf = "isCreator"><my-date-picker id = "{{property.propertyName}}docDate" [(ngModel)]="DocumentDate" name="property.propertyName" [selDate]="docDate" [options]="myDatePickerOptions"></my-date-picker></div>
+                  </td>
+                  
+                  <td class="info-doc-thead" *ngIf = "property.propertyName !='Document Class' 
+                  && property.propertyName !='Confidentiality' 
+                  && property.propertyName !='IsLaunched'
+                  && property.propertyName !='CorrespondenceType'
+                  && property.propertyName !='DocumentFrom'
+                  && property.propertyName !='DepartmentID'
+                  && property.propertyName !='DocumentType'
+                  && property.propertyName !='DocumentFrom'
+                  && property.propertyName !='DocumentTo'
+                  && property.propertyName !='IsReserved'
+                  && property.propertyName !='ReferenceNo'
+                  && property.propertyName !='EmailSubject'
+                  && property.propertyName !='DateReceived'
+                  && property.propertyName !='DocumentDate'">
+                    {{property.descriptiveText}}
+                  </td>
+                  <td *ngIf = "property.propertyName !='Document Class' 
+                  && property.propertyName !='Confidentiality' 
+                  && property.propertyName !='IsLaunched'
+                  && property.propertyName !='CorrespondenceType'
+                  && property.propertyName !='DocumentFrom'
+                  && property.propertyName !='DepartmentID'
+                  && property.propertyName !='DocumentType'
+                  && property.propertyName !='DocumentFrom'
+                  && property.propertyName !='DocumentTo'
+                  && property.propertyName !='IsReserved'
+                  && property.propertyName !='ReferenceNo'
+                  && property.propertyName !='EmailSubject'
+                  && property.propertyName !='DateReceived'
+                  && property.propertyName !='DocumentDate'">
+                    <input readonly class="form-control input-sm" type = "text" id ="{{property.propertyName}}" name ="{{property.propertyName}}" value="{{property.propertyValue}}">
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div> 
+          <div role="tabpanel" [ngClass]="{'active': currentTab==='Versions'}" class="tab-pane fade in doc_info_option_active" id="second">
+            <table class="table table-bordered">
+              <thead class="info-doc-thead">
+                <tr>
+                  <th>V. #</th>
+                  <th>User</th>
+                  <th>Date/Time</th>
+                </tr>
+              </thead>
+              <tr *ngFor="let version of attachmentVersions">
+                <td>{{version.majorVersion}}</td>
+                <td>{{version.createdBy}}</td>
+                <td>{{version.dateCreated}}</td>
+              </tr>
+            </table>
+          </div>
+          <div role="tabpanel" [ngClass]="{'active': currentTab==='Folders'}" class="tab-pane fade in doc_info_option_active" id="htab3">
+            <table class="table table-bordered">
+              <thead class="info-doc-thead">
+                <tr>
+                  <th>Folder Path</th>
+                  <th>Added by User</th>
+                  <th>Date Created</th>
+                </tr>
+              </thead>
+              <tr *ngFor="let folder of attachmentFolders">
+                <td>{{folder.path}}</td>
+                <td>{{folder.createdBy}}</td>
+                <td>{{folder.dateCreated}}</td>
+              </tr>
+            </table>
+          </div>
+          <div role="tabpanel" [ngClass]="{'active': currentTab==='History'}" class="tab-pane fade in doc_info_option_active scoller" id="htab4">
+            <table class="table panel-group minimize-padding" id="accordion">
+              <thead class=" panel panel-default">
+                <tr class="inboxHeader">
+                  <td width="5%">#</td>
+                  <td width="35%">Subject</td>
+                  <td width="20%">Originator</td>
+                  <td width="20%" class="launchDate">Launch Date</td>
+                  <td width="20%" class="deadlineDate">Deadline</td>
+                </tr>
+              </thead>
+              <tbody>
+                <template ngFor [ngForOf]="attachmentHistory" let-attachmenthistory let-index=index>
+                    <tr>
+                      <td>{{index+1}}</td>
+                      <td ><a (click)="getWorkflowHistroyByDept(null,attachmenthistory.workflowID)" href="#collapseWorkflowHistory{{attachmenthistory.workflowID}}" data-toggle="collapse">{{attachmenthistory.workflowSubject}}</a></td>
+                      <td>{{attachmenthistory.workflowLaunchedBy}}</td>
+                      <td>{{attachmenthistory.workflowBeginDate}}</td>
+                      <td>{{attachmenthistory.workflowDeadline}}</td>
+                    </tr>
+                    <tr id="collapseWorkflowHistory{{attachmenthistory.workflowID}}" class="panel-collapse collapse">
+                    <td colspan="6" class="no-padding" >
+                      <div >
+                          <div class="btn-group" >
+                              <button data-toggle="dropdown" type="button" class="btn btn-default dropdown-toggle" aria-expanded="true"> Filter
+                                <span class="caret"></span></button>
+                                <ul role="menu" class="dropdown-menu actions_dd_menu sort-dropdown">
+                                  <li class="dropdown-submenu" (click)="getWorkflowHistroy(null,attachmenthistory.workflowID)" style="cursor:pointer;">
+                                    Show All History
+                                  </li>
+                                  <li class="dropdown-submenu" (click)="getWorkflowHistroyByDept(null,attachmenthistory.workflowID)" style="cursor:pointer;">
+                                    User Department
+                                  </li>
+                                </ul>
+                          </div>
+                      </div>
+                      <table class="table table-bordered panel-group minimize-padding" >
+                        <thead class="info-doc-thead panel panel-default expandedHistory">
+                            <tr>
+                                <td>#</td>
+                                <td width="1%"></td>
+                                <td>Sender</td>
+                                <td>Recipient</td>
+                                <td>Status</td>
+                                <td>Type</td>
+                                <td>Action By</td>
+                              </tr>
+                        </thead>
+                        <tbody>
+                          <template ngFor [ngForOf]="historyDetails" let-history let-inx=index>
+                            <tr>
+                              <td>
+                                  {{inx+1}}
+                              </td>
+                              
+                              <td style="cursor:pointer;">
+                                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse" [ngStyle]="{ 'display': history.workItemActionComment == 'undefined' ?'none': history.workItemActionComment.trim().length >0?'': 'none'}">
+                                  <div [ngClass]="(index >=0 && index<=5) ?'tooltipCommentBottom':'tooltipComment'" >
+                                      <i class="fa fa-comment" style="color:#928df8;" aria-hidden="true" ></i>
+                                      <span [ngClass]="(index >=0 && index<=5) ?'tooltiptextCommentBottom':'tooltiptextComment'" >
+                                      <table>
+                                      <tr>
+                                          <td valign="top" class="titleOne">{{history.senderName}} Comment :</td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" style="font-weight: normal;">
+                                                <div style="padding-left:5px;">
+                                                    {{history.workItemActionComment == 'undefined' ?'':history.workItemActionComment}}
+                                                </div>
+                                              </td>
+                                        </tr>
+                                      </table>
+                                      </span>
+                                    </div>
+                                  </a>
+                              </td>
+                              <td>
+                                <a (click)=openClosePanel(history.workflowId,inx) data-target="show{{history.workflowId}}{{inx}}" data-toggle="collapse">
+                                  {{history.senderName}}
+                                </a>
+                              </td>
+                              <td>
+                                  {{history.recipientName}}
+                              </td>
+                              <td>
+                                  {{history.workItemStatus}}
+                              </td>
+                              <td>
+                                  {{history.workItemType}}
+                              </td>
+                              <td>
+                                  {{history.workflowActionUser}}
+                              </td>
+                            </tr>
+                            <tr id="show{{history.workflowId}}{{inx}}" class="panel-collapse collapse in">
+                              <td colspan="6" class="no-padding">
+                                <table class="table table-bordered panel-group minimize-padding">
+                                <thead class="info-doc-thead panel panel-default expandedHistory">
+			                        </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td><b>Instructions:</b></td>
+                                      <td>{{history.workflowInstruction}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td><b>Last Action Date:</b></td>
+                                      <td>{{history.workflowActionTime}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td><b>Last Action By:</b></td>
+                                      <td>{{history.workflowActionUser}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td><b>Recipient Received Date:</b></td>
+                                      <td>{{history.workItemReceivedOn}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td><b>Workflow Deadline:</b></td>
+                                      <td>{{history.workItemDeadLine}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td><b>Workflow Comments:</b></td>
+                                      <td>{{history.workItemActionComment == 'undefined' ?'There are no comments':history.workItemActionComment}}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                      </template>
+              </tbody>
+            </table>
+            </td>
+            </tr>
+            </template>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      	<button *ngIf="isCreator" type="button" class="btn btn-primary reply_btn" data-dismiss="modal" (click)="modifyDocProperties($event)">Save</button>
+        <button type="button" class="btn btn-primary reply_btn" data-dismiss="modal" (click)="currentTab = selectedFirstTab">OK</button>
+        
+      </div>
+    </div>
+  </div>
+</div>

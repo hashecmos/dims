@@ -1,0 +1,11 @@
+<div class="btn-group">
+            <button data-toggle="dropdown" type="button" class="btn btn-default dropdown-toggle">{{filter_type}}
+                <span class="caret"></span></button>
+            <ul role="menu" class="dropdown-menu dropdown-menu-left dropdown-status">
+                <li><a (click)="apply_filter('All')" class="status">All</a></li>
+                <li class="divider"></li>
+                <li><a (click)="apply_filter('Folders')" class="status"><span class="icon mdi mdi-folder"></span>Folders</a></li>
+                <li><a (click)="apply_filter('Documents')" class="status"><span class="icon mdi mdi-file-text"></span> Documents</a></li>
+
+            </ul>
+        </div>

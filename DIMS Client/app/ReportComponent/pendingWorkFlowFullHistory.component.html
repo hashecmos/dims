@@ -1,0 +1,203 @@
+<header></header>
+<aside class="page-aside">
+  <div class="be-scroller ps-container ps-theme-default ps-active-y">
+    <div class="aside-content">
+      <report-side-bar></report-side-bar>
+    </div>
+  </div>
+</aside>
+
+<div class="be-content be-no-padding" >
+  <div class="main-content container-fluid ReportsContainer" style = "overflow-y: hidden;">
+    <div class="col-sm-12" id="reportSearchForm">
+      <form class="form" role="form" (ngSubmit)="submitReport($event)">
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="form-group">
+              <label for="inputType" class="control-label col-sm-4">Department</label>
+              <div class="input-group col-sm-8">
+                <select id="departmentId" class="form-control adv_search_dd" name="selectedTitleSearchOperator" (change)="loadUsersForDepartment()">
+                    <option class="dropdown-options" value="{{current_user.employeeDepartment.departmentCode}}" >{{current_user.employeeDepartment.department}}</option>
+                </select>
+                <!--<input [(ngModel)]="workflowStatistics.department" class="form-control adv_search_textbox" type="text" name="workflowStatistics.department"
+                  placeholder="Department">-->
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-5">
+            <div class="form-group">
+               <label for="inputType" class="col-sm-4 control-label" >Sender Name</label>
+                <div class="input-group col-sm-8">
+                <select id="senderName" class="form-control adv_search_dd"  name="sender" readonly disabled>
+                  <option class="col-sm-2 dropdown-options" value="{{current_user.employeeLogin}}">{{currentUserEmpName}}</option>
+                  <option *ngFor="let users of userList" class="col-sm-2 dropdown-options" value="{{users.employeeLogin}}" >{{users.employeeName}}</option>
+                </select>
+                <!-- <p-dropdown  [filter]="true" placeholder="Select Sender" [(ngModel)]="workflowStatistics.sender" [style]="{'width':'290px'}" [options]="dropdownSender" name="sender"></p-dropdown> -->
+               
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="form-group">
+              <label for="inputType" class="control-label col-sm-4">Filter Users</label>
+              <div class="input-group col-sm-8">
+                <select id="userId" class="form-control adv_search_dd" name="selectedTitleSearchOperator"  name="user" (change)="loadUsersForFilter()">
+                  <option class="col-sm-2 dropdown-options" value="All" >All</option>
+                  <option class="col-sm-2 dropdown-options" value="TL" >Team Leader</option>
+                  <option class="col-sm-2 dropdown-options" value="senior" >Senior</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-5">
+            <div class="form-group">
+               <label for="inputType" class="col-sm-4 control-label">Item Status</label>
+                <div class="input-group col-sm-8">
+                <select id="itemStatus" class="form-control adv_search_dd" name="status">
+                   <option class="col-sm-2 dropdown-options" value="All">All</option>
+                  <option class="col-sm-2 dropdown-options" value="Done" >Done</option>
+                  <option class="col-sm-2 dropdown-options" value="Not Done" >Not Done</option>
+                </select>
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="form-group">
+               <label for="inputType" class="col-sm-4 control-label">Recipient <span style="color:red;">*</span></label>
+                <div class="input-group col-sm-8">
+                  <p-dropdown  [filter]="true" (onChange)="hideDiv()" placeholder="Select Recipient" [(ngModel)]="workflowStatistics.recipient" [style]="{'width':'330px'}" [options]="dropdownRecepients" name="recepients"></p-dropdown>
+                </div>
+            </div>
+          </div>
+        </div>
+
+          <div class="row">
+            <div class="col-sm-5">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">From Date</label>
+                 <div class="input-group col-sm-8">
+                   <my-date-picker name="workflowStatistics.fromDate" (inputFieldChanged)="disableToDate($event)"  [options]="myDatePickerOptions" [(ngModel)]="workflowStatistics.fromDate" name="fromDate"></my-date-picker>
+                   <!-- <input type="checkbox">Null -->
+                 </div>
+              </div>
+            </div>
+             <div class="col-sm-5">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">To Date</label>
+                 <div class="input-group col-sm-8">
+                  <my-date-picker name="workflowStatistics.toDate" [options]="myDatePickerDisableOptions" [(ngModel)]="workflowStatistics.toDate" name="toDate"></my-date-picker>
+                  <!-- <input type="checkbox">Null -->
+                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-success" type="button" (click)="pendingWorkitemsFullHistory()">View Report</button>
+          </div>
+    </form>
+<div id="displayLoader" class="loading" style="display:none;">Loading&#8230;</div>
+  </div>
+      <div *ngIf="noResult" class="reportDisplay col-sm-12 no-padding">
+No Result....
+</div>
+   <div *ngIf="showReport" class="reportDisplay col-sm-12 no-padding"  style="height: 55%;">
+     <div class="col-sm-12" id="reportBar">
+      <span class="glyphicon glyphicon-step-backward submitReport_backward"></span>
+      <span class="glyphicon glyphicon-triangle-left triangle_left"></span>
+      <input type="text"> of 1
+      <span class="glyphicon glyphicon-triangle-right triangle_right"></span>
+      <span class="glyphicon glyphicon-step-forward step_forward"></span>
+      <select class="" id="options">
+        <option value="volvo">Select a Format</option>
+        <option value="pdf">PDF</option>
+        <option value="excel">Excel</option>
+      </select> 
+      <span class="report_export" style="cursor:pointer;" (click)="exportData()" ><b>Export</b></span>
+    </div>
+    <div class="col-sm-12" id="printSectionId" style="height: 95%;">
+    
+     <div class="col-sm-5">
+          <div class="navbar-header col-md-2 col-sm-3 ">
+            <a class="navbar-brand dims_brand"><img src="./images/logo-new.png" alt=""></a>
+          </div>
+        </div>
+        
+        <br><br><br><br>
+        <hr style="color:black;background-color: black; height:1px;" />
+        <div class="">
+          <div *ngFor="let k of key" style="width:90%; margin:0 auto;">
+		<br><br>
+            	<table style="width:80%;">
+            		<tr>
+            			<td><b>{{selectedRecipient}}</b></td>
+            			<td></td>
+            			<td></td>
+            			<td></td>
+            		</tr>
+            		<tr>
+            			<td><b>{{pendingWFsFullHistoryList[k][0].subject}}</b></td>
+            			<td></td>
+            			<td></td>
+            			<td></td>
+            		</tr>
+            		<tr>
+            			<td><b>{{pendingWFsFullHistoryList[k][0].workitemStatus}}({{pendingWFsFullHistoryList[k][0].workitemStatus}})</b></td>
+            			<td></td>
+            			<td></td>
+            			<td></td>
+            		</tr>
+            		<tr>
+            			<td></td>
+            			<td><i>Workflow Begin Date</i></td>
+            			<td><i>Workflow Receieve Date</i></td>
+            			<td><i>Workflow Deadline Date</i></td>
+            		</tr>
+            		<tr>
+            			<td></td>
+            			<td><b>{{pendingWFsFullHistoryList[k][0].receiveDate}}</b></td>
+            			<td><b>{{pendingWFsFullHistoryList[k][0].receiveDate}}</b></td>
+            			<td><b>{{pendingWFsFullHistoryList[k][0].deadLine}}</b></td>
+            		</tr>
+            	
+            	</table>
+            	<br>
+            	<div style = "border:1px solid black;">
+            	<i>History of {{pendingWFsFullHistoryList[k][0].subject}}</i>
+            	<table width="100%" class="table table-striped">
+            		<tr style="background-color : #808080; color : white;">
+            			<td ><b>Sender</b></td>
+            			<td ><b>Recipient</b></td>
+            			<td ><b>Status</b></td>
+            			<td ><b>Action</b></td>
+            			<td ><b>Action Date</b></td>
+            			<td ><b>Comments</b></td>
+            			
+            		</tr>
+            		<tr *ngFor="let y of pendingWFsFullHistoryList[k]" >
+            			<td >{{y.sender}}</td>
+            			<td >{{y.recipient}}</td>
+            			<td *ngIf ="y.systemStatus == 'to'">Active</td>
+            			<td *ngIf ="y.systemStatus == 'cc'">CC</td>
+            			<td *ngIf ="y.systemStatus == 'Reply'">Done</td>
+            			<td *ngIf ="y.systemStatus != 'to' && y.systemStatus != 'Reply' && y.systemStatus != 'cc'">{{y.systemStatus}}</td>
+            			<td >{{y.workitemStatus}}</td>
+            			<td >{{y.actionDate}}</td>
+            			<td *ngIf ="y.comments != 'undefined' && y.comments != 'Read'">{{y.sender}} Comments: {{y.comments}}</td>
+            			<td *ngIf ="y.comments == 'undefined'">No Comments from the Sender</td>
+            			<td *ngIf ="y.comments == 'Read'">No Comments from the Sender</td>
+            		</tr>
+            	</table>
+            	</div>
+            	<br>
+            	</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

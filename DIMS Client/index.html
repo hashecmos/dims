@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DIMS</title>
+    <base href='/'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="images/logo-fav.png">
+    <link rel="stylesheet" type="text/css" href="bundles/lib/perfect-scrollbar/css/perfect-scrollbar.min.css"/>
+    <link rel="stylesheet" type="text/css" href="bundles/lib/select2/css/select2.min.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="bundles/lib/material-design-icons/css/material-design-iconic-font.min.css"/>
+   
+	<link rel="stylesheet" type="text/css" href="/node_modules/primeng/resources/primeng.min.css" />
+	<link rel="stylesheet" type="text/css" href="/node_modules/primeng/resources/themes/_theme.scss" />
+	<!-- <link href="/node_modules/quill/dist/quill.snow.css" rel="stylesheet">
+	<script src="/node_modules/quill/quill.js"></script> -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    
+    <!-- <link rel="stylesheet" href="bundles/css/style.css" type="text/css"/> -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link href="node_modules/quill/dist/quill.snow.css" rel="stylesheet">
+  	<script src="node_modules/quill/dist/quill.js"></script> 
+  	<script src="node_modules/chart.js/dist/Chart.bundle.min.js"></script>
+    <script src="jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+				var nAgt = navigator.userAgent;
+				var browserName  = navigator.appName;
+				var nameOffset,verOffset,ix;
+				
+				
+				// In MSIE, the true version is after "MSIE" in userAgent
+				if ((verOffset=nAgt.indexOf("MSIE"))!=-1) {
+				 browserName = "Microsoft Internet Explorer";
+				}
+				// In Chrome, the true version is after "Chrome" 
+				else if ((verOffset=nAgt.indexOf("Chrome"))!=-1) {
+				 browserName = "Chrome";
+				}
+				// In Firefox, the true version is after "Firefox" 
+				else if ((verOffset=nAgt.indexOf("Firefox"))!=-1) {
+				 browserName = "Firefox";
+				}
+				// In most other browsers, "name/version" is at the end of userAgent 
+				else if ( (nameOffset=nAgt.lastIndexOf(' ')+1) < 
+				          (verOffset=nAgt.lastIndexOf('/')) ) 
+				{
+				 browserName = nAgt.substring(nameOffset,verOffset);
+				 fullVersion = nAgt.substring(verOffset+1);
+				 if (browserName.toLowerCase()==browserName.toUpperCase()) {
+				  browserName = navigator.appName;
+				 }
+				}
+				if (browserName == "Microsoft Internet Explorer") {
+					 document.write("<link type=\"text/css\" rel=\"stylesheet\" href=\"stylesie.css\">");
+					 }
+					 else if (browserName == "Chrome") {
+					 document.write("<link type=\"text/css\" rel=\"stylesheet\" href=\"styles.css\">");
+					 }
+					 else if (browserName == "Firefox") {
+						 document.write("<link type=\"text/css\" rel=\"stylesheet\" href=\"styles.css\">");
+						 }
+					 else {
+					 document.write("<link type=\"text/css\" rel=\"stylesheet\" href=\"stylesie.css\">");
+					 }
+				
+				</script>
+
+    <!-- Polyfill(s) for older browsers -->
+    <script src="node_modules/core-js/client/shim.min.js"></script>
+
+    <script src="node_modules/zone.js/dist/zone.js"></script>
+    <script src="node_modules/reflect-metadata/Reflect.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+
+    <script src="systemjs.config.js"></script>
+<script src="bundles/lib/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"
+        type="text/javascript"></script>
+<script src="bundles/js/main.js" type="text/javascript"></script>
+<script src="bundles/js/FileSaver.js" type="text/javascript"></script>
+<script src="bundles/lib/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="bundles/lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+<script src="bundles/lib/jquery.nestable/jquery.nestable.js" type="text/javascript"></script>
+<script src="bundles/lib/moment.js/min/moment.min.js" type="text/javascript"></script>
+<script src="bundles/lib/datetimepicker/js/bootstrap-datetimepicker.min.js"
+        type="text/javascript"></script>
+<script src="bundles/lib/daterangepicker/js/daterangepicker.js" type="text/javascript"></script>
+<script src="bundles/lib/select2/js/select2.min.js" type="text/javascript"></script>
+<script src="bundles/lib/select2/js/select2.full.min.js" type="text/javascript"></script>
+<script src="bundles/lib/bootstrap-slider/js/bootstrap-slider.js" type="text/javascript"></script>
+<script src="bundles/js/app-form-elements.js" type="text/javascript"></script>
+<script src="bundles/js/app-mail-inbox.js" type="text/javascript"></script>
+
+
+    <script>
+      System.import('app').catch(function(err){ console.error(err); });
+    </script>
+  </head>
+
+  <body>
+	<my-app>Loading your app here ...</my-app>
+	<div id="footer">Powered by IT Department</div>
+  </body>
+
+</html>

@@ -1,0 +1,77 @@
+<modal #documentMailerModal class="colored-header colored-header-primary" [closeOnOutsideClick]="false" [closeOnEscape]="false" (onClose)="resetForm();">
+  <modal-header>
+	 <div class="modal-header">
+                <h3 class="modal-title">Email Document</h3>
+     </div>
+  </modal-header>
+  <modal-content>
+    <form #documentMailerForm class="form-horizontal" role="form" (ngSubmit)="sendDocumentMail($event,body,subject)">
+		<div class="section-2">
+        <div class="form-group">
+          <div class="row">
+            <label class="col-sm-1 control-label" style="font-weight: bold;">To:</label>
+                <div class="col-sm-11">
+                <!-- <input id ="to" class="form-control input-sm" auto-complete  min-chars="2" max-num-list="7"  display-property-name="employeeEmail" [source]="emailSearchUrl" (ngModelChange)="toEmailSelected($event)" name="toEmailSearch" /> -->
+                <input id ="to" class="form-control input-sm" auto-complete  min-chars="2"  display-property-name="employeeEmail" [source]="emailSearchUrl" (ngModelChange)="toEmailSelected($event)" name="toEmailSearch" />
+                <span *ngFor="let list of toList" class="selected_names_of_lunch">
+					<span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,toList)">x</a></span>
+				</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <label class="col-sm-1 control-label" style="font-weight: bold;">CC:</label>
+                <div class="col-sm-11">
+                <!-- <input id="cc" type="text" class="form-control input-sm" auto-complete min-chars="2" max-num-list="2" display-property-name="employeeEmail" [source]="emailSearchUrl" (ngModelChange)=" ccEmailSelected($event)" name="ccEmailSearch"> -->
+                <input id="cc" type="text" class="form-control input-sm" auto-complete min-chars="2"  display-property-name="employeeEmail" [source]="emailSearchUrl" (ngModelChange)=" ccEmailSelected($event)" name="ccEmailSearch">
+                <span *ngFor="let list of ccList" class="selected_names_of_lunch">
+				<span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,ccList)">x</a></span>
+				</span>
+                </div>
+              </div>
+            </div>
+      <div class="form-group">
+          <div class="row">
+              <label class="col-sm-1 control-label" style="font-weight: bold;">Subject:</label>
+            <div class="col-sm-11">
+              <input [(ngModel)]='subject' type="text" name="subject" class="form-control input-sm" value={{subject}}/>
+            </div>
+          </div>
+        </div>
+      
+      <div class="form-group">
+          <div class="row">
+              <label class="col-sm-1 control-label" style="font-weight: bold;">Attachment:</label>
+            	<div class="col-sm-11 ">
+                  <span class="selected_names_of_lunch" *ngFor="let doc of documents">
+                     <span>{{doc.fileName}}<a class="remove_contact" *ngIf="disableClose != true" (click)="removeDocument($event,doc)">x</a></span>
+                   </span>
+                </div>
+          </div>
+        </div>
+        
+      <div class="form-group">
+          <div class="row">
+              <label class="col-sm-1 control-label" style="font-weight: bold;">Content:</label>
+            <div class="col-sm-11">
+            	<!-- added by Anand for rich text editor -->
+              	<p-editor [(ngModel)]="body" [style]="{'height':'180px'}" name="content" ></p-editor> 
+	            <!-- <button (click)="text2=null" icon="fa-close" label="Clear" pbutton="" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left"> 
+	            <span class="ui-button-icon-left ui-c fa fa-fw fa-close"></span>
+	            <span class="ui-button-text ui-c">Clear</span></button> -->
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+       <div class="modal-footer col-sm-12">
+         <input style="margin-top:4px;" name="sendMailButton" type="submit" class="btn btn-primary reply_btn" value="Send"/>
+      	 <button style="margin-top:4px;" class="btn btn-primary" (click)="documentMailerModal.close();" data-dismiss="modal" type="button">Cancel</button>
+      </div>
+      </div>
+    </form>
+  </modal-content>
+</modal>
+         
+

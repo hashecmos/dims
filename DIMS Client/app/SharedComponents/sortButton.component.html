@@ -1,0 +1,37 @@
+<!-- Sort filter, left-top-component -->
+<!-- <div class="btn-group">
+<button data-toggle="dropdown" type="button" class="btn btn-default dropdown-toggle" aria-expanded="true">Sort
+          <span class="caret"></span></button>
+        <ul role="menu" class="dropdown-menu actions_dd_menu sort-dropdown">
+          <li class="dropdown-submenu" *ngFor="let coloption of columnOptions;let i = index;" id={{coloption}}>
+          <a class="btn-default" aria-expanded="true">&nbsp;&nbsp;{{coloption}}</a>
+                   <ul id={{coloption}} class="dropdown-menu childdropdownminwidth" (click)="$event.stopPropagation()">
+                        <li id={{coloption}} (click)="select('Ascending',i)" [ngClass]="{activetick: isActiveAscending('Ascending',i)}"><a>Ascending</a></li>
+                        <li id={{coloption}} (click)="select('Descending',i)" [ngClass]="{activetick: isActiveDescending('Descending',i)}"><a>Descending</a></li>
+                   </ul>
+          </li>   
+        </ul>
+</div> -->  
+
+
+<!-- All filter, right-top-component -->
+<div class="btn-group">
+<button data-toggle="dropdown" (click) = "hideDiv()" type="button" class="btn btn-default dropdown-toggle" aria-expanded="true">{{filterButtonText}}
+                            <span class="caret"></span></button>
+                         <!-- <ul role="menu" class="dropdown-menu actions_dd_menu sort-dropdown"> -->
+                         <ul role="menu" class="dropdown-menu actions_dd_menu sort-dropdown"  style="min-width: 0px;">
+                            <li class="dropdown-submenu" *ngFor="let option of filterOptions;let i = index;" id={{option}}>
+                            	<a aria-expanded="true" class="status">{{option}}</a>
+                            	<ul id={{option}} class="dropdown-menu childdropdownminwidth" (click)="$event.stopPropagation()">
+                                  <li id={{option}} (click)="applyFilter(option,'Ascending',i)" [ngClass]="{activetick: isActiveAscending('Ascending',i,option)}"><a style="cursor:pointer;">Ascending</a></li>
+                                  <li id={{option}} (click)="applyFilter(option,'Descending',i)" [ngClass]="{activetick: isActiveDescending('Descending',i,option)}"><a style="cursor:pointer;">Descending</a></li>
+                              </ul>
+                            	
+                            </li>
+                        </ul>
+                        
+                        
+  </div>
+
+           
+ 

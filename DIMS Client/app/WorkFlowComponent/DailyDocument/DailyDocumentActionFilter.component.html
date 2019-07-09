@@ -1,0 +1,35 @@
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle action_btn" data-toggle="dropdown">
+    <b>Actions</b> <span class="caret dd_caret"></span>
+  </button>
+  <ul class="dropdown-menu actions_dd_menu" role="menu"> 
+    <li><a (click)="openLaunchModel()" class="right-top-all-btn" ><b>Launch</b></a></li>
+    <li><a (click)="downloadMultiDocument(selectedDocuments)"  class="right-top-all-btn"><b>Download</b></a></li>
+	<!--<li><a (click)="notifyToDisplayProperties()" [class.disabled_actn]="isSingleDocSelected()" role="button" data-toggle="modal" data-target="#infoModal" class="right-top-all-btn"><b>Properties</b></a></li>-->
+     <li *ngIf="!isSingleDocSelected()"><a (click)="notifyToDisplayProperties()"  role="button" data-toggle="modal" data-target="#infoModal" class="right-top-all-btn"><b>Properties</b></a></li>
+    <li><a role="button" data-toggle="modal" (click)="openRemoveModal(selectedDocuments,completeActionModal)" class="right-top-all-btn"><b>Remove</b></a></li>
+  <!--  <li><a role="button" [class.disabled_actn]="isSingleDocSelected()" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+selectedDocuments[0]?.id+'&osName='+os_name)" target="_blank" class="right-top-all-btn"><b>View</b></a></li> -->
+	
+	<li *ngIf="!isSingleDocSelected()"><a role="button" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+selectedDocuments[0]?.id+'&osName='+os_name)" target="_blank" class="right-top-all-btn"><b>View</b></a></li>
+    <li><a (click)="openDocumentActionPopup(selectedDocuments, documentMailer)" role="button" data-toggle="modal" data-target="completeActionModal" class="right-top-all-btn"><b>Email</b></a></li>
+    <li><a (click)="sendMail(selectedDocuments)" role="button" class="right-top-all-btn"><b>Outlook Email</b></a></li>
+  </ul>
+</div>
+
+<modal #completeActionModal class="modal-dialog launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+  <modal-header>
+    <div class="modal-header">
+          <h3>Remove</h3>
+      </div>
+  </modal-header>
+  <modal-content class="completeTask">
+    <p style="margin-top: 10px;">
+      Are you sure you want to remove this document?
+    </p>
+    <button type="button" class="btn btn-primary" (click)="completeActionModal.close(); removeDocument(selectedDocuments,completeActionModal)" data-toggle="tab">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="completeActionModal.close(); closeAction(completeActionModal)" data-toggle="tab">Cancel</button>
+  </modal-content>
+</modal>
+
+
+<document-mailer #documentMailer></document-mailer>

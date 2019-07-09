@@ -1,0 +1,939 @@
+<style>
+.ui-tree .ui-tree-container ui-tree ui-widget ui-widget-content ui-corner-all ui-tree-selectable { height:100% !important;}
+
+</style>
+
+<div class="email-inbox-header">
+	<div class="row">
+		<div class="col-md-6">
+			<div class="email-title">
+				<span class="icon mdi mdi-inbox"></span> Browse <span
+														class="new-messages"></span>
+			</div>
+		</div>
+		<div class="col-md-6 text-right">
+			<settings-btn></settings-btn>
+			<button class="btn btn-space btn-primary" data-toggle="tooltip" title="Refresh" (click)="getColumnPreferences()">
+				<i class="icon icon-left mdi mdi-refresh-sync"></i> Refresh
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- Added RaviBoni -->
+<!-- Dialog of can not do CheckIn  -->
+<modal #docCannotDoCheckInModel id="checkPop" modalClass="modal-dialog" class="launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+		<modal-header>
+		 <div class="modal-header">
+			<div class="container-fluid">
+			<h3 class="modal-title">Document Status</h3>
+			</div>
+		</div>
+		</modal-header>
+		<modal-content>
+			 <div *ngIf="!isReservedAction">
+				You don't have access to check-out this document.<br><br>
+			 </div>
+			 <div *ngIf="isReservedAction">
+				You don't have access to check-in this document.<br><br>
+			 </div>
+		</modal-content>
+		<modal-footer>
+			<button class="btn btn-primary" (click)="docCannotDoCheckInModel.close();" data-dismiss="modal" type="button">Close</button>
+		</modal-footer>
+	</modal>
+	
+	<!-- Dialog of can not do CheckIn  -->
+	<modal #docCannotDoCancelCheckOutModel id="checkPop" modalClass="modal-dialog" class="launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+		<modal-header>
+		 <div class="modal-header">
+			<div class="container-fluid">
+			<h3 class="modal-title">Document Status</h3>
+			</div>
+		</div>
+		</modal-header>
+		<modal-content>
+			 <div >
+				You don't have access to cancel check-out of this document..
+			 </div>
+		</modal-content>
+		<modal-footer>
+			<button class="btn btn-primary" (click)="docCannotDoCancelCheckOutModel.close();" data-dismiss="modal" type="button">Close</button>
+		</modal-footer>
+	</modal>
+	
+	<!-- Dialog for can not do CheckIn/Out  -->
+	<modal #docCannotDoCheckInOutModel id="checkPop" modalClass="modal-dialog" class="launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+		<modal-header>
+		 <div class="modal-header">
+			<div class="container-fluid">
+			<h3 class="modal-title">Document Status</h3>
+			</div>
+		</div>
+		</modal-header>
+		<modal-content>
+			 <div *ngIf="!isReserved" >
+				You don't have access to check-out this document.
+			 </div>
+			 <div *ngIf="isReserved" >
+				You don't have access to check-in this document.
+			 </div>
+		</modal-content>
+		<modal-footer>
+			<button class="btn btn-primary" (click)="docCannotDoCheckInOutModel.close();" data-dismiss="modal" type="button">Close</button>
+		</modal-footer>
+	</modal>
+	
+<!-- End -->
+
+<div class="email-filters">
+<div class="email-filters-left">
+	<multiple-selection-filter (notifyParent)="toggleSelectAll($event)" [is_all_selected]="is_all_selected"></multiple-selection-filter>
+	<!-- <all-btn-document (notifyfiltertoParent)="applyFilter($event)"></all-btn-document> -->
+	<action-btn-document *ngIf="isItemSelected()" (notifytoSetAttachmentId)="setAttachmentID($event)" (notifytoOpenLaunch)="switchTab1($event)" [selectedDocuments]="selectedDocuments" [selectedFolders]="selectedFolders" (notifyParenttocheckout)="checkout_actn(docCheckInModal, docCannotDoCheckInModel)" (notifyParentToOpenDocumentLink)="openDocumentLink(documentLink)" (notifyParentToCancelCheckout)="cancelCheckout(docCannotDoCancelCheckOutModel)"></action-btn-document>
+	<div class="btn-group" *ngIf="isSortButtonEnabled">
+			<button data-toggle="dropdown" type="button" class="btn btn-default dropdown-toggle" aria-expanded="true">{{filterButtonText}}
+				<span class="caret"></span></button>
+				<ul role="menu" class="dropdown-menu actions_dd_menu sort-dropdown"  style="min-width: 0px;">
+					<li class="dropdown-submenu" *ngFor="let option of filterOptions;let i = index;" id={{option}}>
+						<a aria-expanded="true" class="status">{{option}}</a>
+						<ul id={{option}} class="dropdown-menu childdropdownminwidth">
+							<li style="cursor:pointer;" id={{option}} (click)="applyFilterOnSort(option,'Ascending',i)" [ngClass]="{activetick: isActiveAscending('Ascending',i,option)}" ><a>Ascending</a></li>
+							<li style="cursor:pointer;" id={{option}} (click)="applyFilterOnSort(option,'Descending',i)" [ngClass]="{activetick: isActiveDescending('Descending',i,option)}"><a>Descending</a></li>
+						</ul>
+					</li>
+				</ul>
+	</div>
+	<advance-search-modal></advance-search-modal>
+</div>
+ <div class="email-filters-right" >
+	<pagination-template #p="paginationApi" (pageChange)="page = getPage($event)" class="pull-right pagination">
+		<span class="pagination-previous paginatioon_left_arrow" [class.disabled]="p.isFirstPage()" style="cursor:pointer">
+			<a *ngIf="!p.isFirstPage()" (click)="leftClicked(p)" >
+					<button type="button" class="btn btn-default">
+						<i class="mdi mdi-chevron-left"></i>
+					</button>  
+				</a>
+		</span>
+		<span *ngFor="let page of p.pages" [class.current]="p.getCurrent() === page.value">
+			<span *ngIf="p.getCurrent() === page.value">
+					 <span class="pagination_current_page_number">
+						 <!-- Added by Ravi Boni, readonly attribute only -->
+						 <!-- <font size="3"> Page <input style="width:30px" title="Go to page" (keypress)="onEnterKey($event,p)" type="text" id="currentPageSelected" value ="{{ page.label }}">(No of Docs per page{{totalItemsCount}})</font> -->
+						 <font size="3"> Page <input style="width:30px" disabled size="1" readonly title="Go to page" (keypress)="onEnterKey($event,p)" type="text" id="currentPageSelected" value ="{{ page.label }}">(No of Docs per page{{totalItemsCount}})</font>
+				 </span>
+			 </span>
+		</span>
+		<span class="pagination-next paginatioon_right_arrow"  *ngIf="preventNextPage" style="cursor:pointer">
+				 <a  (click)="rightClicked(p)" >  
+					 <button type="button" class="btn btn-default">
+						 <i class="mdi mdi-chevron-right"></i>
+					 </button>
+				 </a>
+		 </span>
+	</pagination-template>
+			<!--<span class="email-pagination-indicator"><font size="3">Documents Found: {{totalItemsCount}}</font></span>-->
+			<!--   <pagination-controls (pageChange)="page = pageChange($event)" class="pull-right pagination" previousLabel="" nextLabel="" maxSize="0"></pagination-controls> -->
+				<div class="btn-group email-pagination-nav" style="display:none;">
+					<button type="button" class="btn btn-default pg-prv"><i class="mdi mdi-chevron-left"></i></button>
+					<button type="button" class="btn btn-default pg-nxt"><i class="mdi mdi-chevron-right"></i></button>
+				</div>
+ </div>
+ <!--  <div class="email-filters-right" style="vertical-align: top;">
+	<settings-btn></settings-btn>
+</div> -->
+</div>
+
+<div class="scrollworkitem" style="height : 83%;">
+	<!-- <span *ngIf="applyFilterType != 'Documents'">
+		<div class="email-list-item email-list-item--unread" *ngFor="let folder of sub_folders ; let index = index"  [class.dochighlighted]="folder.visible">
+		<a class="email-list-item email-list-item--unread" [routerLink]="['/browse/documents/', folder.id]">
+				<div class="email-list-actions">
+						<div class="be-checkbox">
+								<input id="{{folder.id}}" type="checkbox" (change)="selectDoc($event,folder)" [(ngModel)]="folder.is_checked">
+								<label for="{{folder.id}}"></label>
+						</div>
+				</div>
+				<div class="email-list-detail folder"><span class="date pull-right">{{folder.dateCreated}}</span>
+					<a [routerLink]="['/browse/documents/', folder.id]"><span class="icon mdi mdi-folder"></span>{{folder.getFolderName()}}</a>         
+				</div>
+			</a>
+		</div>
+	</span> -->
+	
+	<span *ngIf="applyFilterType != 'Folders'">
+
+		<table class="table table-sm " >
+			<thead style="background-color: #ccc;" >
+				<tr>
+					<th width="1%" ></th>
+					<th width="1%" ></th>
+					<!--<th width="1%" style="border-right: 1px solid #f3f3f3;"></th>-->
+					<th width="1%" class="docIcon" ></th>
+					<th width="1%" ></th>
+					<th width="26%" style="border-right: 1px solid #f3f3f3;">Subject</th>
+					<th width="13%" style="border-right: 1px solid #f3f3f3;">Reference No</th>
+					<th width="10%" style="border-right: 1px solid #f3f3f3;">Document ID</th>
+					<th width="6%" *ngIf="isDocDate" style="border-right: 1px solid #f3f3f3;">Doc Date</th>
+					<th width="10%" *ngIf="isDepartment" style="border-right: 1px solid #f3f3f3;">Department</th>
+					<th width="10%" *ngIf="isCreatedBy"style="border-right: 1px solid #f3f3f3;">Created By</th>
+					<th width="10%" *ngIf="isDateCreated" style="border-right: 1px solid #f3f3f3;">Date Created</th>
+					<th width="15%" style="border-right: 1px solid #f3f3f3;"></th>
+				</tr>
+			</thead>
+			<tbody>
+					<tr *ngFor="let doc of documents_items| paginate: { itemsPerPage: 100, currentPage: page, totalItems: 100000 }; let index = index" [class.dochighlighted]="doc.showOptions">
+							 <td>
+									<div class="be-checkbox">
+											<input id="{{doc.id}}" type="checkbox" (change)="selectDoc($event,doc)" [(ngModel)]="doc.is_checked">
+											<label for="{{doc.id}}"></label>
+									</div>
+							 </td>
+							
+								<td>
+									 <a><span *ngIf="doc.reserved" class="glyphicon glyphicon-lock task_glyphicon checkout-icon from" style="width: 2%;"></span></a>
+								</td>
+								<!--<td>
+									 <a><span *ngIf="!doc.reserved" class="from col-md-1" style="width: 2%;"></span></a>
+								</td>-->
+								<td class="docIcon from col-md-1" style="width: 2%;" [ngSwitch]="doc.mimeType"
+									(click)="doc.mimeType == 'image/tif' || doc.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)">
+									<i *ngSwitchCase="'image/png'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/gif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/jpeg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/jpe'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/bmp'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/jpg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/tif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/tiff'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'image/ico'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+									<i *ngSwitchDefault class="glyphicon glyphicon-file" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="fa fa-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/msword'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/doc'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/dot'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/docx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/dotm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/docm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/dotx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.template'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.ms-excel'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.template'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xls'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xlsx'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xla'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xlt'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xltm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xlam'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/xlsb'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.ms-powerpoint'" class="fa fa-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.presentation'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.template'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.slideshow'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/ppt'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/pot'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/pps'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/ppa'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/pptx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/potx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/ppsx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/ppam'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/pptm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/potm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/ppsm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/x-rar-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/octet-stream'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/x-zip-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/x-zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/x-gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/x-rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>                 
+									<i *ngSwitchCase="'application/x-pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>
+									<i *ngSwitchCase="'application/acrobat'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i> 
+								</td> 
+								<td>
+										<i *ngIf="doc.IsLaunched == 1" style="cursor:pointer;" (click)="setAttachmentDocHist(doc)" data-toggle="modal" data-target="#infoModal" class="glyphicon glyphicon glyphicon-paperclip"></i>
+								</td>
+								<td class ="from">
+										<a (click)="doc.mimeType == 'image/tif' || doc.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"  style="cursor:pointer;">
+											<span class ="from" *ngIf="doc.subject" [innerHTML]="doc.subject | highlight : searchTerm" ></span>
+										</a>
+									</td>
+								<td class ="from">{{doc.referenceNo}}</td>
+								<td class ="from">{{doc.documentID}}</td>
+								<td class ="date" *ngIf="isDocDate">{{doc.documentDate}}</td>
+								<td class ="from" *ngIf="isDepartment">{{doc.department}}</td>
+								<td class ="from" *ngIf="isCreatedBy">{{doc.createdBy}}</td>
+								<td class ="date" *ngIf="isDateCreated">{{doc.dateCreated}}</td>
+								<td>
+									<table>
+										<tr>
+												<td class="actionsSandB" *ngIf="doc.showOptions">
+														<!-- <a (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"><span style="color :#ffffff; cursor:pointer;" class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a> -->
+														<a (click)="viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document')" target="_blank"><span style="color :#ffffff; cursor:pointer;" class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a>
+														<a (click)="setAttachmentDoc(doc)" role="button" data-toggle="modal" data-target="#infoModal"><span  style="color :#ffffff" class="glyphicon glyphicon-info-sign task_glyphicon" title="Document Properties"></span></a>
+														<a [attr.href]="base_url+'/FilenetService/downloadDocument?docId='+doc.id+'&osName='+os_name"><span  style="color :#ffffff" class="glyphicon glyphicon-save task_glyphicon" title="Download Document"></span></a>
+														<a (click)="sendMail(doc.id, doc.subject)" role="button"><span  style="color :#ffffff" class="glyphicon glyphicon glyphicon-share-alt task_glyphicon" title="Send By Outlook"></span></a>
+														<a (click)="openDocumentActionPopup(doc, documentMailer)" role="button"><span  style="color :#ffffff" class="glyphicon glyphicon glyphicon-envelope task_glyphicon" title="Send By Webmail"></span></a>
+														<a role="button" data-toggle="modal" (click)="checkoutDoc(doc,docCheckInModal,docCannotDoCheckInOutModel)"><span  style="color :#ffffff" class="glyphicon glyphicon-lock task_glyphicon" title="Check Out/In"></span></a>
+												</td>
+										</tr>
+									</table> 
+								</td>
+							</tr>
+						</tbody>
+		</table>
+		<div id="displayLoader" class="loading" style="display:none;">Loading&#8230;</div>
+		
+	<!--	<div class="email-header-item email-header-item--unread" style="background-color: #ccc;">
+				<div class="email-list-actions">
+						<div class="be-checkbox" style="width: 1%;">
+						</div>
+						
+				</div>
+				<div class="email-list-detail document">
+						<span class="pull-right"></span>
+						<span style="width: 1%;"></span>
+						<span class="from col-md-1" style="width: 1%;"></span>
+						<span class="docIcon from col-md-1" style="width: 4%;" ></span>
+						<span class ="from col-md-3" >Subject</span>
+						<span class ="from col-md-1" >Ref No</span>
+						<span class ="from col-md-1" >Doc ID</span>
+					
+						<span *ngFor ="let colPref of colPrefs">
+							<span class ="from col-md-1" *ngIf="(colPref.itemType == 'browseDocumentDate' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentDocumentDate')">Doc Date</span>
+							<span class="date pull-right" *ngIf="(colPref.itemType == 'browseDepartment' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentDepartment')">Department</span>
+							<span class ="from col-md-1" *ngIf="(colPref.itemType == 'browseCreatedBy' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentCreatedBy')">Created By</span>
+							<span class="date pull-right" *ngIf="(colPref.itemType == 'browseDateCreated' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentDateCreated')">Date Created</span>
+						</span>
+				</div>
+				 <div id="displayLoader" class="loading" style="display:none;">Loading&#8230;</div>
+		</div>
+		<a class="email-list-item email-list-item--unread" *ngFor="let doc of documents_items| paginate: { itemsPerPage: 100, currentPage: page, totalItems: 100000 }; let index = index" [class.dochighlighted]="doc.showOptions">
+				<div class="email-list-actions">
+						<div class="be-checkbox" style="width: 1%;">
+								<input id="{{doc.id}}" type="checkbox" (change)="selectDoc($event,doc)" [(ngModel)]="doc.is_checked">
+								<label for="{{doc.id}}"></label>
+						</div>
+				</div>
+				<div class="email-list-detail document">
+						
+						<span class="pull-right">
+					 
+						</span>
+						<span class="actions" *ngIf="doc.showOptions">
+							<a (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a>
+							<a (click)="setAttachmentDoc(doc)" role="button" data-toggle="modal" data-target="#infoModal"><span class="glyphicon glyphicon-info-sign task_glyphicon" title="Document Properties"></span></a>
+							<a [attr.href]="base_url+'/FilenetService/downloadDocument?docId='+doc.id+'&osName='+os_name"><span class="glyphicon glyphicon-save task_glyphicon" title="Download Document"></span></a>
+							<a (click)="sendMail(doc.id, doc.subject)" role="button"><span class="glyphicon glyphicon glyphicon-share-alt task_glyphicon" title="Send By Outlook"></span></a>
+							<a (click)="openDocumentActionPopup(doc, documentMailer)" role="button"><span class="glyphicon glyphicon glyphicon-envelope task_glyphicon" title="Send By Webmail"></span></a>
+							<a role="button" data-toggle="modal" (click)="checkoutDoc(doc,docCheckInModal,docCannotDoCheckInOutModel)"><span class="glyphicon glyphicon-lock task_glyphicon" title="Check Out/In"></span></a>
+						</span>
+						<span>
+							 <a><span *ngIf="doc.reserved" class="glyphicon glyphicon-lock task_glyphicon checkout-icon from col-md-1" style="width: 1%;"></span></a>
+							 <a><span *ngIf="!doc.reserved" class="from col-md-1" style="width: 1%;"></span></a>
+							</span>
+						<span class="docIcon from col-md-1" style="width: 4%;" [ngSwitch]="doc.mimeType">
+							<table>
+								<tr>
+									<td>
+										
+																			<i *ngSwitchCase="'image/png'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/gif'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/jpeg'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/jpe'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/bmp'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/jpg'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/tif'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/tiff'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchCase="'image/ico'" class="fa fa-file-image-o"></i>
+										
+																			<i *ngSwitchDefault class="glyphicon glyphicon-file"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="fa fa-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/msword'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/doc'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/dot'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/docx'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/dotm'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/docm'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/dotx'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.template'" class="fa fa-file-word-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.ms-excel'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.template'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xls'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xlsx'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xla'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xlt'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xltm'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xlam'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/xlsb'" class="fa fa-file-excel-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.ms-powerpoint'" class="fa fa-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.presentation'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.template'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.slideshow'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/ppt'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/pot'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/pps'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/ppa'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/pptx'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/potx'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/ppsx'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/ppam'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/pptm'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/potm'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/ppsm'" class="fa fa-file-powerpoint-o"></i>
+										
+																			<i *ngSwitchCase="'application/x-rar-compressed'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/octet-stream'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/zip'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/rar'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/x-zip-compressed'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/x-zip'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/gzip'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/x-gzip'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/x-rar'" class="fa fa-file-archive-o"></i>
+										
+																			<i *ngSwitchCase="'application/pdf'" class="fa fa-file-pdf-o"></i>                 
+										
+																			<i *ngSwitchCase="'application/x-pdf'" class="fa fa-file-pdf-o"></i>
+										
+																			<i *ngSwitchCase="'application/acrobat'" class="fa fa-file-pdf-o"></i>                                                                         
+										
+											</td> 
+									<td>
+											<i *ngIf="doc.IsLaunched == 1" (click)="setAttachmentDocHist(doc)" data-toggle="modal" data-target="#infoModal" class="glyphicon glyphicon glyphicon-paperclip" style="left: 4px;">&nbsp;</i>
+									</td>
+								</tr>
+							</table>
+						</span>
+					 
+					 <span class ="from col-md-3" *ngIf="doc.subject" [innerHTML]="doc.subject | highlight : searchTerm">&nbsp;&nbsp;</span>
+					 <span class ="from col-md-3" *ngIf="!doc.subject" [innerHTML]="">&nbsp;&nbsp;</span>
+					 <span class ="from col-md-1" >&nbsp;&nbsp;{{doc.referenceNo}}</span>
+					 <span class ="from col-md-1" >&nbsp;&nbsp;{{doc.documentID}}</span>
+					 
+					 <span *ngFor ="let colPref of colPrefs">
+						<span class ="from col-md-1" *ngIf="(colPref.itemType == 'browseDocumentDate' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentDocumentDate')">&nbsp;&nbsp;{{doc.documentDate}}</span>
+						<span class="date pull-right" *ngIf="(colPref.itemType == 'browseDepartment' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentDepartment')">&nbsp;&nbsp;{{doc.department}}</span>
+							<span class ="from col-md-1" *ngIf="(colPref.itemType == 'browseCreatedBy' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentCreatedBy')">&nbsp;&nbsp;{{doc.createdBy}}</span>
+							<span class="date pull-right" *ngIf="(colPref.itemType == 'browseDateCreated' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'documentDateCreated')">&nbsp;&nbsp;{{doc.dateCreated}}</span>
+					</span>
+					 
+				</div>
+		</a>-->
+	</span>
+</div>
+
+<!-- Modal content checkout-->
+<div id="docModal" class="modal fade" role="dialog">
+<div class="modal-dialog checkout-modal">
+	<div class="modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal">&times;</button>
+		<h4 class="modal-title info-checkout-title">Success!</h4>
+	</div>
+	<div class="modal-body">
+		<p><strong *ngIf="checkin">Document is successfully checked in !</strong><strong *ngIf="!checkin">Document is successfully checked out !</strong></p>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default  center-block" data-dismiss="modal">OK</button>
+	</div>
+	</div>
+</div>
+</div>
+
+<!-- Added RaviBoni -->
+<!-- Dialog of document status either CheckOut or CheckIn -->
+<modal #docCheckInCheckOutStatus id="checkPop" modalClass="modal-dialog" class="launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+		<modal-header>
+		 <div class="modal-header">
+			<div class="container-fluid">
+			
+			<h3 class="modal-title">Document Status</h3>
+			 
+			</div>
+		</div>
+		</modal-header>
+		<modal-content>
+		 <div *ngIf="checkin" style="margin-top:5px;">
+				Document checked-in successfully.
+			
+		</div>
+		<div *ngIf="!checkin" style="margin-top:5px;">
+				Document checked-out successfully.
+			
+		</div>
+	
+		</modal-content>
+		<modal-footer>
+		<button class="btn btn-primary" (click)="docCheckInCheckOutStatus.close();" data-dismiss="modal" type="button">Close</button>
+		</modal-footer>
+	</modal>
+		
+	<!-- End -->  
+
+<!-- folder creation -->
+
+
+<!-- folder moving -->
+<div id="moveFolder" class="modal fade" role="dialog">
+<div class="modal-dialog checkout-modal colored-header colored-header-primary">
+	<div class="modal-content">
+	<div class="modal-header">
+			<modal-header>
+					<h3 class="modal-title">Move To Folder</h3>
+		   </modal-header>
+		<button class="close" data-dismiss="modal" type="button" aria-label="Close"><span aria-hidden="true" class="mdi mdi-close"></span></button>
+			
+	 </div>
+	<div class="modal-body">
+		
+		 <div id="addLoader"></div><br>
+		 <table style ="width: 100%;"> 
+				<tr>
+						<td align="left">
+								<b>Please select the folder to move the selected document.</b>
+						</td>
+						<td align="right" style="vertical-align: top;width: 20%;">
+								<input [disabled]="selectedNode == null" class="btn btn-space btn-primary" type="button" name="move" value="Move To Folder" (click)= "moveToFolder(selectedNode)" >
+						</td>
+				</tr>
+				<tr>
+						<td colspan="2" style ="width: 60%;">
+								 <div style="height: 390px; overflow:auto;">
+									 <p-tree [value]="nodesList" selectionMode="single" [(selection)]="selectedNode" (onNodeSelect)="setSelectedFolder($event)" [styleClass]="'.ui-tree .ui-tree-container'" (onNodeExpand)="loadNode($event)"></p-tree>
+								 <!-- 	<p-tree [value]="moveNodes" selectionMode="single" [(selection)]="selectedNode" (onNodeSelect)="setSelectedFolder($event)" ></p-tree> 	 -->
+								</div>
+						</td>
+						
+				</tr>
+			</table>
+		
+	</div>
+	</div>
+</div>
+</div>
+
+<div *ngFor="let r of currentCheckInDoc?.attributes">
+</div>
+
+<modal #docCheckInModal modalClass="modal-dialog" id="checkPop" class="launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+	<modal-header>
+	 <div class="modal-header">
+		<div class="container-fluid">
+		
+		<div class="modal-header" *ngIf="isReserved">
+				
+				<modal-header>
+							 <h3 class="modal-title">Document Checkin</h3>
+					</modal-header>
+		</div>
+		<div class="modal-header" *ngIf="!isReserved">
+				
+				<modal-header>
+							 <h3 class="modal-title">Document Checkout</h3>
+					</modal-header>
+		</div>
+		 
+		</div>
+	</div>
+	</modal-header>
+	<modal-content>
+	 <!--  <div *ngIf="!isReserved"> -->
+	 <div *ngIf="!isReserved" >
+		Are you sure, you want to check-out this Document?<br><br>
+		
+	</div>
+
+	<div class="td_dd_layout" *ngIf="isReserved" style="line-height: 4"	>
+		<!--<div class="tab-content doc_checkin_modal"> -->
+		<div role="tabpanel" class="tab-pane active">
+			<form class="form-horizontal" role="form" (ngSubmit)="sendCheckoutDoc(docCheckInModal, docCheckInCheckOutStatus, $event)">
+		 
+			<!--<div class="form-group" style="height:313px; overflow-y:scroll;"> -->
+			<div class="form-group">
+				<div class="form-group">
+						<!--<div *ngFor="let resDoc of currentCheckInDoc.attributes;let i = index;">
+						<div class="row" style="width:95%;">
+								<div class="col-sm-4"><label>{{currentCheckInDoc.getPropertyForIndex(i)}} :</label></div>
+								<div class="col-sm-6">
+									<input type="text" class="form-control" name="{{currentCheckInDoc.getPropertyForIndex(i)}}" value="{{currentCheckInDoc.getValueForIndex(i)}}" /><br>
+							</div>
+						</div>
+					</div> -->
+					<div>
+						<label>Attachment:</label>
+						<input type="file" class="form-control" name="attachment" (change)="fileChange($event)" />
+					</div>
+				</div>
+			
+			<!--
+					<table style="width:100%">
+					<tr style="width:100%" *ngFor="let property of attachmentProperties">
+						<td class="info-doc-thead">
+						{{property.propertyName}}
+						</td>
+						<td>
+						{{property.propertyValue}}
+						</td>
+					</tr>
+					
+					</table>
+			-->
+			</div>
+			<footer class="td_footer" style="background-color:#ffffff;">
+				<div *ngIf="isReserved">
+				<button id="checkIN" class="btn btn-primary" disabled>Checkin</button>
+				</div>
+			</footer>
+			</form>
+		</div>
+		<!--</div> -->
+	</div>
+	</modal-content>
+	<modal-footer *ngIf="!isReserved">
+	<span>
+		<button  class="btn btn-primary " (click)="sendCheckoutDoc(docCheckInModal, docCheckInCheckOutStatus)">Checkout</button>
+		<button class="btn btn-primary" (click)="docCheckInModal.close();" data-dismiss="modal" type="button">Cancel</button>
+		</span>
+	</modal-footer>
+</modal>
+
+<document-info [currentTab]='currentTab' [selectedAttachmentID]="selectedAttachmentID" [selectedDocument]="selectedDocument" (docAfterChange)="handleDocumentChange($event)"></document-info>
+<document-mailer #documentMailer></document-mailer>
+<document-link #documentLink></document-link> 
+
+
+
+
+
+
+<div id="launch123" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary">
+								<div class="modal-dialog custom-width">
+									<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span
+										class="mdi mdi-close"></span></button>
+										<h3 class="modal-title">Launch Workflow</h3>
+										</div>
+
+										<div class="modal-body">
+										<div class="left-sidebar">
+											<div class="panel-group" id="accordion-menu">
+											<ul>
+												<li >
+													<accordion [closeOthers]="true">
+															<accordion-group *ngFor="let division of divisions" heading="My Division" (onOpen)="loadUsersForDivision(division)" (onClose)="disableToCC()">
+															
+															<div>
+																<div class="open collapsed">
+																	<div>
+																		<table class="table table-striped">
+																			<tbody>
+																				<tr>
+																					<td><input id="searchCriteria" class="form-control input-sm" type="text"></td>
+																						 <td><button class="clear" (click)="loadUsersForDivision(division)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																						<td><button class="search" (click)="getDivisionUserList(division)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																				</tr>
+																				</tbody>
+																		</table>
+																	</div>					
+																	<div class ="scrollit">
+																	<table class="table table-striped">
+																	<thead>
+																		<tr style="font-size: smaller;font-weight: bold;">
+																		<td>Full Name</td>
+																		<td>To</td>
+																		<td>CC</td>
+																		<td>None</td>
+																		</tr>
+																	</thead>
+																	<tbody>
+																			<tr *ngFor="let user of division.users" style="font-size: smaller;font-weight: bold;">
+																			<td >{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+																			<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+																			<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+																			<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+																			</tr>
+																			<tr>
+																	</tbody>
+																	</table>
+																	</div>
+																</div>
+															</div>
+														 </accordion-group>
+					<!-- 						 		</accordion>
+												</li>
+												
+												
+												<li>
+														<accordion> -->
+															<accordion-group *ngFor="let department of departments" heading="My Department" (onOpen)="loadUsersForDepartment(department)" (onClose)="disableToCC()">
+															<div>
+																<div class="open collapsed">
+																<div>
+																<table class="table table-striped">
+																	<tbody>
+																		<tr>
+																			<td><input id = "deptsearchCriteria" type="search" class="form-control input-sm"></td>
+																			<td><button class="clear" (click)="loadUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																			<td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																		</tr>
+																	</tbody>
+																</table>
+																</div>
+																	<div class ="scrollit">
+																	<table class="table table-striped">
+																	<thead>
+																		<tr style="font-size: smaller;font-weight: bold;">
+																		<td>Full Name</td>
+																		<td>To</td>
+																		<td>CC</td>
+																		<td>None</td>
+																		</tr>
+																	</thead>
+																	<tbody>
+																			<tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+																			<td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+																			<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+																			<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+																			<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+																			</tr>
+																	</tbody>
+																	</table>
+																	
+																	</div>
+																	
+																</div>
+															</div>
+														 </accordion-group>
+														 
+														 <accordion-group heading="KNPC Hierarchy List" (onOpen)="loadKNPCHierarchy()" (onClose)="disableToCC()">
+															<div class="scrollit_knpc_hierarchy_list">
+																<accordion>
+																			<accordion-group *ngFor="let department of knpcHierarchy" heading="{{department.department}}" (onOpen)="loadUsersForDepartment(department)">
+																				
+																						<div>
+																						<div class="open collapsed">
+																						<div>
+																						<table class="table table-striped">
+																							<tbody>
+																								<tr>
+																									<td><input id = "deptsearchCriteria" type="search" class="form-control input-sm"></td>
+																									<td><button class="clear" (click)="loadUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																									<td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																								</tr>
+																							</tbody>
+																						</table>
+																						</div>
+																							<!-- <div class ="scrollit"> -->
+																							<table class="table table-striped">
+																							<thead>
+																								<tr style="font-size: smaller;font-weight: bold;">
+																								<td>Full Name</td>
+																								<td>To</td>
+																								<td>CC</td>
+																								<td>None</td>
+																								</tr>
+																							</thead>
+																							<tbody>
+																									<tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+																									<td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+																									<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+																									<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+																									<td><input type="radio" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+																									</tr>
+																							</tbody>
+																							</table>
+																							
+																							<!-- </div> -->
+																							
+																						</div>
+																					</div>
+																				
+																			</accordion-group>
+																	</accordion>		
+															</div>
+														 </accordion-group>
+														 
+													 </accordion>
+												</li>
+											</ul>
+											</div>
+										 
+										</div>
+										<div class="content">
+										 <!--  <ul  class="nav nav-pills">
+											<li class="active"><a  href="#basic-information" data-toggle="tab">Basic Information</a></li>
+											</ul> -->
+											<div class="tab-content clearfix">
+											<div class="tab-pane active" id="basic-information">
+												<div class="section-1">
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Subject:</label>
+													<div class="col-sm-9">
+														<input type="text" [(ngModel)]="newTask.subject" class="form-control input-sm">
+													</div>
+													</div>
+												</div>
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Name:</label>
+													<div class="col-sm-9"> 
+														<input type="text" [(ngModel)]="newTask.name" readonly class="form-control input-sm">
+													</div>
+													</div>
+												</div>
+												</div>
+												<div class="section-2">
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">To:</label>
+													<div class="col-sm-9">
+													<input id="to" class="form-control input-sm" auto-complete disabled type="text" (ngModelChange)="addTosList($event)" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="tosList" />
+													<span *ngFor="let list of wradio_to" class="selected_names_of_lunch">
+															<span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,'wto')">x</a></span>
+														</span>
+													</div>
+													</div>
+												</div>
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Cc:</label>
+													<div class="col-sm-9">
+													<input id="cc" type="text" class="form-control input-sm" auto-complete disabled type="text" (ngModelChange)="addCcsList($event)" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="tosList">
+													<span *ngFor="let list of wradio_cc" class="selected_names_of_lunch">
+															<span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,'wcc')">x</a></span>
+													</span>
+													</div>
+													</div>
+												</div>
+												</div>
+												<div class="section-3">
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Instructions:</label>
+													<div class="col-sm-9">
+													<select class="form-control input-sm" [(ngModel)]="newTask.instruction" name="instruction">
+														<option *ngFor="let instruction of instructions">{{instruction}}</option>
+													</select>
+														<!-- <select class="form-control input-sm">
+														<option>Action</option>
+														<option>Another Action</option>
+														</select> -->
+													</div>
+													</div>
+												</div>
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Comments:</label>
+													<div class="col-sm-9">
+														<textarea rows="5" [(ngModel)]="newTask.comment" name="comment" ></textarea>
+													</div>
+													</div>
+												</div>
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Deadline:</label>
+													<div class="col-sm-9">
+														<my-date-picker name="created_date" [options]="myDatePickerOptions" [(ngModel)]="newTask.deadline" placeholder="Deadline" required></my-date-picker>
+													</div>
+													</div>
+												</div>
+												<div class="form-group">
+													<div class="row">
+													<label class="col-sm-3 control-label">Selected Documents:</label>
+													<div class="col-sm-9">
+														<div class="selected_tos_of_lunch fullWidth no-margin">
+														 
+														<span *ngFor="let list of userSelected_docs" class="selected_names_of_lunch">
+															<span>{{ list.symbolicName }}<a class="remove_contact" (click)="removeSelectedDocsFromList($event, list,'CC-List')">x</a></span>
+														</span>
+														</div>
+														
+														<div>
+															<a>
+															<span class="glyphicon glyphicon-tasks glyphicon_task">
+																</span>
+															</a>
+														</div>
+													</div>
+													</div>
+												</div>
+												</div>
+												 </div>
+											</div>
+										</div>
+										</div>
+										<div class="modal-footer">
+										<button type="button" data-dismiss="modal" class="btn btn-default md-close">Cancel
+										</button>
+										<button type="button" (click)="launch_existingdoc(launch)" data-dismiss="modal" class="btn btn-primary md-close" >Send
+										</button>
+										</div>
+									</div>
+									</div>
+								</div>
+								

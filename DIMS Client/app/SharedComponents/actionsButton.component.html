@@ -1,0 +1,1005 @@
+<div *ngIf="showActions()" class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle action_btn" data-toggle="dropdown">
+       <b>Actions</b><span class="caret dd_caret"></span>
+    </button>
+    <ul class="dropdown-menu actions_dd_menu" role="menu">
+    <li *ngFor="let option of actionOptions"><a *ngIf="checkActionOption(option)" class="right-top-all-btn" data-toggle="modal" (click)="performAction(option,actionModal)"><b>{{option}}</b></a> <a *ngIf="haveOneSelectedTask()" class="right-top-all-btn" data-toggle="modal" (click)="performAction(option,actionModal)"><b>{{option}}</b></a></li>
+      <!-- <li *ngFor="let option of actionOptions"><a class="right-top-all-btn" data-toggle="modal" data-target="#actions" (click)="setDetails(option)"><b>{{option}}</b></a></li> -->
+      <li *ngIf="is_archive_available==true"><a class="right-top-all-btn" (click)="archive_task()"><b>Archive</b></a></li>
+      <li *ngIf="is_complete_available==true"><a class="right-top-all-btn" (click)="performAction('complete',completeActionModal)"><b>Complete</b></a></li>
+      
+    </ul>
+  </div>
+  
+  <div class ="marginleft25" *ngIf="is_for_buttons">
+    <!-- <button *ngFor="let option of actionOptions" type="button" class="btn btn-space btn-primary " data-toggle="modal" data-target="#actions" (click)="setDetails(option)">
+      <b>{{option}}</b>
+    </button> -->
+    
+    <button *ngFor="let option of actionOptions" type="button" class="btn btn-space btn-primary" (click)="performAction(option,actionModal)">
+      <b>{{option}}</b>
+    </button>
+    <button *ngIf="is_archive_available==true" type="button" class="btn btn-space btn-primary" (click)="archive_task()">
+      <b>Archive</b>
+    </button>
+    <button *ngIf="is_complete_available==true" type="button" class="btn btn-space btn-primary" (click)="performAction('complete',completeActionModal)">
+      <b>Complete</b>
+    </button>
+    
+  </div>
+  <div *ngIf="enableLoader == true"  id="displayfade_in" class="modal-backdrop fade in" style="z-index:2000;">
+    <div id="loader_main_search"></div>
+    <div class="loader" ></div>
+  </div>
+  
+  <!-- <div class="modal-dialog info-doc-modal colored-header colored-header-primary"> -->
+  <modal #actionModal modalClass="" id={{replyObject.reply_type}}{{activeTab}} class="launch_modal_search colored-header colored-header-primary" 
+  (onOpen)="getUserList()" (onClose)="clearList(actionModal);" [closeOnOutsideClick]="false" [closeOnEscape]="false" >
+    <modal-header>
+        <div class="modal-header">
+            <h3 class="modal-title">{{this.replyObject.reply_type}}</h3>
+          </div>
+    </modal-header>
+    <modal-content>
+    <div class="td_dd_layout action_modal">
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane" [class.active]="activeTab == 'default'">
+            <div class="left-sidebar" style=" overflow-y: auto;height:500px;" *ngIf="replyObject.reply_type != 'Done'">
+                                                <div class="panel-group" id="accordion-menu">
+                                                  <ul>
+                                                    <li *ngIf="replyObject.reply_type != 'Done'">
+                                                        <ul>
+                                                          <li> 
+                                                          
+                                                            <accordion [closeOthers]="true">
+                                                              <div>
+                                                              
+                              <accordion-group *ngIf="!showMyUserList" #userListThing id="test" heading="My User List" (onOpen)="getUserList()" (onClose)="disableToCC()" [isOpened]="true">
+                                  <div class="scrollit_knpc_hierarchy_list">
+                                    <accordion>
+                                                <accordion-group #userListThing *ngFor="let list of userList; let i=index;" heading="{{list.listName}}" (onOpen)="loadDeafultUserList(list)" [isOpened]="i==0?true:false">
+                                                  
+                                                        <div>
+                                                <div class="open collapsed">
+                                                <div>
+                                                <table class="table table-striped">
+                                                  <tbody>
+                                                    <tr>
+                                                      <td><input id = "userList" type="search" class="form-control input-sm" (keypress)="enterKeyPressed($event,list)" ></td>
+                                                      <td><button class="clear" (click)="loadDeafultUserList(list)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                      <td><button class="search" (click)= "filterUserList(list)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                                </div>
+                                                  <div class ="scrollit">
+                                                  <table class="table table-striped">
+                                                                            <thead>
+                                                                              <tr style="font-size: smaller;font-weight: bold;">
+                                                                                <tr style="font-size: smaller;font-weight: bold;">
+                                                                                  <td>Full Name</td>
+                                                                                  <td *ngIf="isToEnabled()" style="cursor:pointer;" (click)="selectAll(defaultUserList,'to')">To</td>
+                                                                                  <td *ngIf="isCCEnabled()" style="cursor:pointer;" (click)="selectAll(defaultUserList,'cc')">CC</td>
+                                                                                <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'none')">None</td>
+                                                                              </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr *ngFor="let user of defaultUserList" style="font-size: smaller;font-weight: bold;">
+                                                                                  <td>{{user.employeeName}}<br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                                  <td *ngIf="isToEnabled()"><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin+ul" (change)="SelectedToRadio($event,user)"></td>
+                                                                                  <td *ngIf="isCCEnabled()"><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin+ul" (change)="SelectedCcRadio($event,user)"></td>
+                                                                                  <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin+ul" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                                </tr>
+                                                  </tbody>
+                                                  </table>
+                                                  
+                                                  </div>
+                                                  
+                                                </div>
+                                              </div>
+                                                    
+                                                </accordion-group>
+                                            </accordion>		
+                                  </div>
+                                
+                                </accordion-group>
+                                <accordion-group #divisionsThing *ngFor="let division of divisions" heading="My Division" (onOpen)="loadUsersForDivision(division)" (onClose)="disableToCC()" [isOpened]="showMyUserList?true:false">
+                                  <div>
+                                    <div class="open collapsed">
+                                      <div>
+                                        <div>
+                                          <table class="table table-striped">
+                                            <tbody>
+                                              <tr>
+                                                <td><input id="searchCriteria" type="search" class="form-control input-sm" (keypress)="searchDivision($event,division)"></td>
+                                                                                 <td><button class="clear" (click)="loadUsersForDivision(division)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                                                <td><button class="search" (click)="getDivisionUserList(division)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                      <div class ="scrollit">
+                                        <table class="table table-striped">
+                                                                  <thead>
+                                                                    <tr style="font-size: smaller;font-weight: bold;">
+                                                                      <td>Full Name</td>
+                                                                      <td *ngIf="isToEnabled()" style="cursor:pointer;" (click)="selectAll(division.users,'to')">To</td>
+                                                                      <td *ngIf="isCCEnabled()" style="cursor:pointer;" (click)="selectAll(division.users,'cc')">CC</td>
+                                                                      <td style="cursor:pointer;" (click)="selectAll(division.users,'none')">None</td>
+                                                                    </tr>
+                                                                  </thead>
+                                                                  <tbody>
+                                                                      <tr *ngFor="let user of division.users" style="font-size: smaller;font-weight: bold;">
+                                                                        <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                        <!-- <td><input type="radio" name="to"></td> -->
+                                                                        <td *ngIf="isToEnabled()"><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                        <td *ngIf="isCCEnabled()"><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                        <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                        <!-- <td><input type="radio" name="to_cc" (change)="SelectedNoneRadio($event,user)"></td> -->
+                                                                      </tr>
+                                        </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  </div>
+                                 </accordion-group>
+                                 </div>
+                             <!-- 	</accordion>
+                                                            
+                                                          </li>
+                                                          
+                                                        </ul>
+                                                    </li>
+                                                    
+                                                    
+                                                    <li *ngIf="replyObject.reply_type != 'Done'">
+                                                        <ul>
+                                                          <li> 
+                                                            <accordion> -->
+                                                            <div *ngIf="replyObject.reply_type != 'Done'">
+                                                              <accordion-group #deptThing *ngFor="let department of departments" heading="My Department" (onOpen)="loadUsersForDepartment_1(department)" (onClose)="disableToCC()">
+                                  <div>
+                                    <div class="open collapsed">
+                                    <div>
+                                        <div>
+                                          <table class="table table-striped">
+                                            <tbody>
+                                              <tr>
+                                                <td><input id = "deptsearchCriteria" type="search" class="form-control input-sm" (keypress)="searchDepartment($event,department)"></td>
+                                                                                 <td><button class="clear" (click)="loadUsersForDepartment_1(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                                                <td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                      <div class ="scrollit">
+                                      <table class="table table-striped">
+                                                                <thead>
+                                                                  <tr style="font-size: smaller;font-weight: bold;">
+                                                                    <td>Full Name</td>
+                                                                    <td *ngIf="isToEnabled()" style="cursor:pointer;" (click)="selectAll(department.users,'to')">To</td>
+                                                                    <td *ngIf="isCCEnabled()" style="cursor:pointer;" (click)="selectAll(department.users,'cc')">CC</td>
+                                                                    <td style="cursor:pointer;" (click)="selectAll(department.users,'none')">None</td>
+                                                                  </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+                                                                      <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                      <!-- <td><input type="radio" name="to"></td> -->
+                                                                      <td *ngIf="isToEnabled()"><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                      <td *ngIf="isCCEnabled()"><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                      <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                      <!-- <td><input type="radio" name="to_cc" (change)="SelectedNoneRadio($event,user)"></td> -->
+                                                                    </tr>
+                                      </tbody>
+                                      </table>
+                                      
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                                 </accordion-group>
+                                 
+                                 
+                                 </div>
+                                 
+                                 <div *ngIf ="checkJobTitle()">
+                                 <accordion-group #crossThing id="crossdept" *ngFor="let department of departments"  heading="Cross Department" (onClose)="disableToCC()" (onOpen)="loadCrossDepartmentUsers()">
+                                  <div>
+                                    <div class="open collapsed">
+                                    <div>
+                                    <table class="table table-striped">
+                                      <tbody>
+                                        <tr>
+                                          <td><input id = "crosssearchCriteria" type="search" class="form-control input-sm" (keypress)="searchCrossDepartment($event)"></td>
+                                          <td><button class="clear" (click)="loadCrossDepartmentUsers()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                          <td><button class="search" (click)="getCrossDepartmentUserList()" ><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                    </div>
+                                      <div class ="scrollit">
+                                      <table class="table table-striped">
+                                                                <thead>
+                                                                 <tr style="font-size: smaller;font-weight: bold;">
+                                                                    <td>Full Name</td>
+                                                                    <td *ngIf="isToEnabled()" style="cursor:pointer;" (click)="selectAll(crossDepartment,'to')">To</td>
+                                                                    <td *ngIf="isCCEnabled()" style="cursor:pointer;" (click)="selectAll(crossDepartment,'cc')">CC</td>
+                                                                    <td style="cursor:pointer;" (click)="selectAll(crossDepartment,'none')">None</td>
+                                                                  </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr *ngFor="let user of crossDepartment" style="font-size: smaller;font-weight: bold;">
+                                                                      <td>{{user.employeeName}}<br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                      <td *ngIf="isToEnabled()"><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                      <td *ngIf="isCCEnabled()"><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                      <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                    </tr>
+                                      </tbody>
+                                      </table>
+                                      
+                                      </div>
+                                      
+                                    </div>
+                                  </div>
+                                 </accordion-group>
+                                 <accordion-group #hierThing id="hierarchy" heading="KNPC Hierarchy List" (onOpen)="loadKNPCHierarchy()" (onClose)="disableToCC()">
+                                  <div>
+                                    <table class="table table-striped">
+                                        
+                                      <tbody>
+                                        <tr>
+                                          <td><input id = "deptsearchCriteria2" type="search" class="form-control input-sm" (keypress)="searchKNPCDepartment_1($event)"></td>
+                                          <td><button class="clear" (click)="loadKNPCHierarchyClear()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                          <td><button class="search" (click)="loadKNPCHierarchyUsersList_1()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                        </tr>
+                                      </tbody>
+                                      
+                                          <tr>
+                                            <td>Full Name</td>
+                                            <td *ngIf="isToEnabled()" style="cursor:pointer;" (click)="globalSelectAll('to')">To</td>
+                                            <td *ngIf="isCCEnabled()" style="cursor:pointer;" (click)="globalSelectAll('cc')">CC</td>
+                                            <td style="cursor:pointer;" (click)="globalSelectAll('none')">None</td>
+                                          </tr>
+                                        
+                                    </table>
+                                    </div>
+                                  <div class="scrollit_knpc_hierarchy_list">
+                                    <accordion>
+                                                <accordion-group *ngFor="let department of knpcHierarchy" heading="{{department.department}}" (onOpen)="loadKNPCHierarchyUsersForDepartment(department)" (onClose)="disableToCC_1()">
+                                                  
+                                                        <div>
+                                                <div class="open collapsed">
+                                                <div>
+                                                <table class="table table-striped">
+                                                  <tbody>
+                                                    <tr>
+                                                      <td><input id = "deptsearchCriteria1" type="search" class="form-control input-sm" (keypress)="searchKNPCDepartment($event,department)"></td>
+                                                      <td><button class="clear" (click)="loadKNPCHierarchyUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                      <td><button class="search" (click)="loadKNPCHierarchyUsersList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                                    </tr>
+                                                  </tbody>
+                                                </table>
+                                                </div> 
+                                                  <div class ="scrollit">
+                                                  <table class="table table-striped">
+                                                                             <thead>
+                                                                             <tr style="font-size: smaller;font-weight: bold;">
+                                                                                <td>Full Name</td>
+                                                                                <td *ngIf="isToEnabled()" style="cursor:pointer;" (click)="selectAll(department.users,'to')">To</td>
+                                                                                <td *ngIf="isCCEnabled()" style="cursor:pointer;" (click)="selectAll(department.users,'cc')">CC</td>
+                                                                                <td style="cursor:pointer;" (click)="selectAll(department.users,'none')">None</td>
+                                                                              </tr>
+                                                                            </thead> 
+                                                                            <tbody>
+                                                                                <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+                                                                                  <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                                  <td *ngIf="isToEnabled()"><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                                  <td *ngIf="isCCEnabled()"><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                                  <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                                </tr>
+                                                  </tbody>
+                                                  </table>
+                                                  
+                                                  </div>
+                                                  
+                                                </div>
+                                              </div>
+                                                    
+                                                </accordion-group>
+                                            </accordion>		
+                                  </div>
+                                 </accordion-group>
+                                 
+                                 </div>
+                               </accordion>
+                                                            
+                                                          </li>
+                                                          
+                                                        </ul>
+                                                    </li>
+                                                  </ul>
+                                                </div>
+                                               
+                                              </div>
+                                              
+                                               <div class="col-sm-6" style="float: right; margin-top: 10px; overflow-y: auto;height:500px;" *ngIf="replyObject.reply_type != 'Done'"> 
+                                                 <div class="content">
+                                                <!-- <ul  class="nav nav-pills">
+                                                  <li class="active"><a  href="#basic-information" data-toggle="tab">Basic Information</a></li>
+                                                  <li><a  href="#launch-attachments" data-toggle="tab">Attachments</a></li>
+                                                </ul> -->
+                                                <div class="tab-content clearfix">
+                                                  <div class="tab-pane active" id="basic-information">
+                                                    <div class="section-1">
+                                                      <div class="form-group" *ngIf="replyObject.reply_type == 'Forward'">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label">Subject:</label>
+                                                          <div class="col-sm-9">
+                                                            <input type="text" class="form-control input-sm" [(ngModel)]="replyObject.subject" name="wrk_subject" id="wrk_subject" placeholder="Subject" readonly>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <!-- <div class="form-group" *ngIf="replyObject.reply_type == 'Forward'">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label">Name:</label>
+                                                          <div class="col-sm-9">
+                                                            <input type="text" class="form-control input-sm" [(ngModel)]="replyObject.name" name="wrk_name" id="wrk_name" placeholder="Name" readonly>
+                                                          </div>
+                                                        </div>
+                                                      </div> -->
+                                                    </div>
+                                                    <div class="section-2">
+                                                     <div class="form-group" *ngIf="replyObject.reply_type == 'Reassign'">
+                                                        <div class="row"> 
+                                                          <label class="col-sm-3 control-label">Recipient List:</label>
+                                                          <div class="col-sm-9">
+                                                          <!-- <div *ngIf="selectedTasks[0]!=undefined">
+                                                          <span *ngFor="let list of selectedTasks[0].workflowRecipientList" >
+                                                            <input type="radio" [name]="selectedRadio" (change)="SelectedRadio($event,list)">{{ list.workflowRecipientName }}
+                                          <span>{{ list.workflowRecipient }}<a class="remove_contact" (click)="removeFromList($event, list,'wto')">x</a></span>
+                                      </span>
+                                                          </div> -->
+                                                          <div *ngIf="recipientList !=undefined">
+                                                          <span *ngFor="let list of recipientList" >
+                                                            <div *ngIf="list.workflowWorkItemType =='to' && (list.workflowWorkItemStatus !='Forward' && list.workflowWorkItemStatus != 'Done')">
+                                                            <input type="radio" [name]="selectedRadio"  (change)="SelectedRadio($event,list)" [checked]="isRecipentSelected">{{ list.workflowRecipientName }}
+                                                            </div>
+                                                            
+                                      </span>
+                                                          </div>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div class="form-group" *ngIf="replyObject.reply_type != 'Done' && isToEnabled()">
+                                                        <div class="row"> 
+                                                          <label class="col-sm-3 control-label">To:</label>
+                                                          <div class="col-sm-9">
+                                                          <!-- <input id ="f_to" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addTosList($event)" min-chars="2" max-num-list="7" display-property-name="employeeName" [source]="userSearchUrl" name="tosList" /> -->
+                                                          <input id ="f_to" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addTosList($event)" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="tosList" />
+                                                          <span *ngFor="let list of selectedTosList" class="selected_names_of_lunch">
+                                          <span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,'wto')">x</a></span>
+                                      </span>
+                                      <span id="errorForMultiUsers" style="display:none;">
+                                        <font color="red" size="3" >Please select only one user to reassign this workitem.</font>
+                                      </span>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div class="form-group" *ngIf="isCCEnabled()">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label">Cc:</label>
+                                                          <div class="col-sm-9">
+                                                          <!-- <input id ="f_cc" type="text" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addCcsList($event)" min-chars="2" max-num-list="7" display-property-name="employeeName" [source]="userSearchUrl" name="tosList"> -->
+                                                          <input id ="f_cc" type="text" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addCcsList($event)" min-chars="2"  display-property-name="employeeName" [source]="userSearchUrl" name="tosList">
+                                                          <span *ngFor="let list of selectedCcsList" class="selected_names_of_lunch">
+                                          <span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,'wcc')">x</a></span>
+                                    </span>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    <div class="section-3">
+                                                      <!-- <div class="form-group" *ngIf="replyObject.reply_type == 'Forward' || replyObject.reply_type == 'Add Users'">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label">Instructions:</label>
+                                                          <div class="col-sm-9">
+                                                          <select id="instruction" class="form-control input-sm" [(ngModel)]="replyObject.instruction" name="instruction">
+                                        <option *ngFor="let instruction of instructions">{{instruction}}</option>
+                                      </select>
+                                                          </div>
+                                                        </div>
+                                                      </div> -->
+                                                      <div class="form-group" *ngIf="replyObject.reply_type == 'Forward' && is_cc_item">
+                                                          <div class="row">
+                                                            <label class="col-sm-3 control-label">Instructions:</label>
+                                                            <div class="col-sm-9">
+                                                            <select id="instruction" disabled class="form-control input-sm" [(ngModel)]="replyObject.instruction" name="instruction">
+                                                              <option *ngFor="let instruction of instructions">{{instruction}}</option>
+                                                            </select>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                        <div class="form-group" *ngIf="(replyObject.reply_type == 'Forward' || replyObject.reply_type == 'Add Users') && !is_cc_item">
+                                                            <div class="row">
+                                                              <label class="col-sm-3 control-label">Instructions:</label>
+                                                              <div class="col-sm-9">
+                                                              <select id="instruction" class="form-control input-sm" [(ngModel)]="replyObject.instruction" name="instruction">
+                                                                <option *ngFor="let instruction of instructions">{{instruction}}</option>
+                                                              </select>
+                                                              </div>
+                                                            </div>
+                                                          </div>
+                                                      <div class="form-group">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label">Comments:</label>
+                                                          <div class="col-sm-9">
+                                                            <textarea maxlength="500" [(ngModel)]='replyObject.message' name="replyObject.message" rows="3" class="comment"></textarea>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div *ngIf="this.replyObject.reply_type == 'Forward'" class="form-group">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label" style="font-weight: bold;">Priority:</label>
+                                                          <div class="col-sm-9">
+                                                          <select id="priority" class="form-control input-sm" [(ngModel)]="replyObject.priority" name="priority">
+                                                            <option *ngFor="let priority of priorities" [ngValue]="replyObject.priority" [attr.selected]="priority=='Normal' ? true : null">{{priority}}</option>
+                                                          </select>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <div class="form-group" *ngIf=" replyObject.reply_type == 'Forward' || replyObject.reply_type == 'Done'">
+                                                        <div class="row">
+                                                          <label class="col-sm-3 control-label">Attachment:</label>
+                                                          <div class="col-sm-9">
+                                                            <div class="selected_tos_of_lunch fullWidth no-margin">
+                                                            <span *ngFor="let selected of existingAttachmentFiles" class="selected_names_of_lunch">
+                                            <span><a class="remove_contact" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+selected.workflowDocumentId+'&osName='+os_name)" target="_blank">{{ selected.fileName }}</a><a class="remove_contact" (click)="removeAttachmentFromList($event, selected,'alreadyAttached')">x</a></span>
+                                        </span>
+                                                             <span *ngFor="let list of attachmentFiles" class="selected_names_of_lunch">
+                                            <span>{{ list.name }}<a class="remove_contact" (click)="removeAttachmentFromList($event, list,'attachment-List')">x</a></span>
+                                        </span>
+                                        <span *ngFor="let list of selected_docs" class="selected_names_of_lunch">
+                                            <span><a class="remove_contact" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+list.id+'&osName='+os_name)" target="_blank">{{ list.symbolicName }}</a><a class="remove_contact" (click)="removeAttachmentFromList($event, list,'Doc-List')">x</a></span>
+                                        </span>
+                                        
+                                      </div>
+                                      <div>
+                                        <label class="custom-file-upload" *ngIf=" replyObject.reply_type == 'Forward' || replyObject.reply_type == 'Done'">
+                                          <input type="file" name="doneReply.DocumentClass" (change)="fileChange($event)" (click)=clearFile($event) id="choosedFile1"/>
+                                          <i class="glyphicon glyphicon-paperclip paperclip" style="cursor:pointer;"></i>
+                                        </label>
+                                        <a>
+                                          <span class="glyphicon glyphicon-tasks glyphicon_task" style="cursor:pointer;" (click)="openLaunchPopup(actionModal)" *ngIf=" replyObject.reply_type == 'Forward' || replyObject.reply_type == 'Done'">
+                                            </span>
+                                        </a>
+                                      </div>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                   </div>
+                                                </div>
+                                                
+                                                 
+                                              </div>
+                                               </div>
+  
+                                              
+                                               
+                                               <div *ngIf="replyObject.reply_type == 'Done'">
+                                                                                          
+                                               <div class="row" style="padding-top: 10px;">
+                                                          <label class="col-sm-3 control-label">Comments:</label>
+                                                          <div class="col-sm-9" style="margin-bottom:10px;">
+                                                            <textarea maxlength="500" [(ngModel)]='replyObject.message' name="replyObject.message" rows="3" class="comment"></textarea>
+                                                          </div>
+                                                        </div>
+                                               <div class="row">
+                                                       <label class="col-sm-3 control-label">Attachment:</label>
+                                                          <div class="col-sm-9">
+                                                            <div class="selected_tos_of_lunch fullWidth no-margin">
+                                                            
+                                                            
+                                                             <span *ngFor="let list of attachmentFiles" class="selected_names_of_lunch">
+                                            <span>{{ list.name }}<a class="remove_contact" (click)="removeAttachmentFromList($event, list,'attachment-List')">x</a></span>
+                                        </span>
+                                        <span *ngFor="let list of selected_docs" class="selected_names_of_lunch">
+                                            <span>{{ list.symbolicName }}<a class="remove_contact" (click)="removeAttachmentFromList($event, list,'Doc-List')">x</a></span>
+                                        </span>
+                                        
+                                      </div>
+                                      <div>
+                                        <label class="custom-file-upload" >
+                                          <input type="file" name="doneReply.DocumentClass" (change)="fileChange($event)" (click)=clearFile2($event) id="choosedFile2"/>
+                                          <i class="glyphicon glyphicon-paperclip paperclip" style="cursor:pointer;"></i>
+                                        </label>
+                                        <a>
+                                          <span class="glyphicon glyphicon-tasks glyphicon_task" style="cursor:pointer;" (click)="openLaunchPopup(actionModal)">
+                                            </span>
+                                        </a>
+                                      </div>
+                                                          </div>
+  
+                                                        </div>
+                                                       
+  
+                                               </div>
+
+                                               <div class="col-sm-12" style="padding-top:10px;">
+                                                  <button id = "cancelButton" type="button" (click)="closePopup(actionModal)" class="pull-right btn btn-primary md-close">Cancel
+                                                    </button>
+                                                    <button style="margin: 0 20px 0 10px" id="doneActionButton" *ngIf="replyObject.reply_type == 'Done'" type="button"  (click)="sendReply(actionModal)" data-dismiss="modal" class="pull-right btn btn-primary md-close" ><i id="spinner"></i>&nbsp;&nbsp;{{this.replyObject.reply_type}}
+                                                    </button>
+                                                    <button style="margin: 0 20px 0 10px" id="actionButton" *ngIf="replyObject.reply_type != 'Done' && replyObject.reply_type != 'Reassign'" type="button" [disabled]="selectedTosList==0 && selectedCcsList==0" (click)="sendReply(actionModal)" data-dismiss="modal" class="pull-right btn btn-primary md-close" ><i id="spinner"></i>&nbsp;&nbsp;{{this.replyObject.reply_type}}
+                                                    </button>
+                                                    <button style="margin: 0 20px 0 10px"  id="actionButton" *ngIf="replyObject.reply_type == 'Reassign'" type="button" [disabled]="(selectedTosList==0 && selectedCcsList==0) || recipientSelected==false" (click)="sendReply(actionModal)" data-dismiss="modal" class="pull-right btn btn-primary md-close" ><i id="spinner"></i>&nbsp;&nbsp;{{this.replyObject.reply_type}}
+                                                    </button>
+                                              </div>
+                                               
+                                              <!-- <div class="modal-footer col-sm-12">
+                                              
+                                              
+                                            </div> -->
+          </div>
+          <div role="tabpanel" class="tab-pane fade  in no-margin" [class.active]="activeTab=='simpleSearch'" id="htab2">
+            <h3 class="headerSearch" style="margin-top: 19px;" >Search Documents</h3>
+            <form class="form-horizontal">
+              <div class="form-group">
+              <label for="inputPassword" class="col-sm-4 control-label">Document ID</label>
+              <div class="col-sm-8">
+                <input type="text" [(ngModel)]="simpleSearchForm.DocumentID" class="form-control" name="doc_title" id="doc_title" placeholder="Document Id">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputPassword" class="col-sm-4 control-label">Reference Number</label>
+              <div class="col-sm-8">
+                <input type="text" [(ngModel)]="simpleSearchForm.ReferenceNo" name="referenceno" class="form-control" id="referenceno" placeholder="Reference Number">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputPassword" class="col-sm-4 control-label">Subject</label>
+              <div class="col-sm-8">
+                <input type="document_id" [(ngModel)]="simpleSearchForm.DocumentTitle" name="emailsubject" class="form-control" id="emailsubject" placeholder="Subject">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputPassword" class="col-sm-4 control-label">Document Date</label>
+              <div class="col-sm-8">
+                <my-date-picker name="dateCreated" [options]="myDatePickerOptions" [(ngModel)]="simpleSearchForm.dateCreated"></my-date-picker>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-offset-4 col-sm-8">
+                <span id ="filterMsg" style="display : none; color : red;"><b>Please provide atleast one search criteria and try again</b></span>
+              </div>
+            </div>
+              <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8">
+                  <button class="btn btn-primary" (click)="simpleSearchDocuments()">Search</button>
+                  <div class="inline" (click)="switchTab('advanceSearch')"><a class="btn btn-primary">Advance Search</a></div>
+                  <!--<button class="btn btn-primary"(click)="actionModal.close()">Cancel</button> -->
+                  <button class="btn btn-primary"(click)="switchTab('default')">Cancel</button>
+                  
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- end of simple search tab -->
+          <!-- advance search tab -->
+          <div role="tabpanel"  [class.active]="activeTab=='advanceSearch'" id="htab2">
+           <div *ngIf="activeTab=='advanceSearch'"><h3 class="headerSearch">Search Documents</h3></div>
+            <form class="form-horizontal" role="form" (ngSubmit)="advanceSearchDocuments(launchModal,$event)">
+             <div *ngIf="activeTab=='advanceSearch'" class="tab-pane fade  in no-margin advance_search_modal" style="height:390px; overflow:auto">
+             
+             <div class="form-group adv_search_fields">
+            <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" >Added by Me</label>
+                <div class="col-sm-10 no-padding">
+                  <input type="checkbox" id="addedByMe" style="height:22px;">
+                </div>
+              </div>
+              <div class="form-group adv_search_fields" *ngFor="let resDoc of documentSearchForm.attributes;let i = index;">
+                <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) != 'DateReceived' && documentSearchForm.getPropertyForIndex(i) != 'DocumentTitle' && documentSearchForm.getPropertyForIndex(i) != 'DocumentID' && documentSearchForm.getPropertyForIndex(i) != 'DepartmentID'" >{{advanceSearchApiValues[i].descriptiveText}}</label>
+                <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DepartmentID'" >Department</label>
+                <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DocumentID'" >Document ID</label>
+                <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DateReceived'" >Date Created</label>
+                <div *ngIf="advanceSearchApiValues[i].datatype == 'DATE'">
+                <div class="col-sm-3 no-padding">
+                <select id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" 
+                         name="selectedTitleSearchOperator" (change)="updateFields(documentSearchForm.getPropertyForIndex(i))">
+                    <option *ngFor="let title of dateComparisonOperators" [attr.selected]="title=='period' ? true : null">{{title}}</option>
+                </select>
+              </div>
+                <div class="col-sm-6 no-padding">
+                    <my-date-picker id="{{documentSearchForm.getPropertyForIndex(i)}}datePicker" [options]="myDatePickerOptions"  style="display:none;"></my-date-picker>
+                </div>
+                <div class="col-sm-6 no-padding">
+                       <my-date-range-picker id="{{documentSearchForm.getPropertyForIndex(i)}}dateRange" [options]="myDateRangePickerOptions" style="display:none"></my-date-range-picker>
+                </div>
+                <div class="col-sm-6 no-padding">
+                    <select id="{{documentSearchForm.getPropertyForIndex(i)}}period" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd"  style="display:block;">
+                      <option value=""></option>
+                      <option value="Today">Today</option>
+                      <option value="This Week">This Week</option>
+                      <option value="This Month">This Month</option>
+                  </select>
+                </div>
+              </div>
+              <div *ngIf="advanceSearchApiValues[i].datatype == 'STRING'">
+              <div *ngIf= "documentSearchForm.getPropertyForIndex(i) != 'DocumentTitle' && documentSearchForm.getPropertyForIndex(i) != 'DocumentID'">
+               <div class="col-sm-3 no-padding">
+                <select id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd"  
+                         name="selectedTitleSearchOperator">
+                    <option *ngFor="let title of textComparisonOperators" [attr.selected]="title=='is equal to' ? true : null" >{{title}}</option>
+                </select>
+              </div> 
+                <div class="col-sm-6 no-padding">
+                  <input type="text" id="astextbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_textbox" id="doc_title" placeholder="{{advanceSearchApiValues[i].descriptiveText}}" style="height:22px;">
+                </div>
+                </div>
+                <div *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DocumentID' ">
+                    <div class="col-sm-3 no-padding" >
+                     <select id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd"  
+                              name="selectedTitleSearchOperator">
+                              <option *ngFor="let title of equalOperatorForDocuemntID" [attr.selected]="title == 'is equal to' ? true : null" >{{title}}</option>
+                     </select>
+                   </div> 
+                     <div class="col-sm-6 no-padding" >
+                       <input type="text" id="astextbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_textbox" id="doc_title" placeholder="{{advanceSearchApiValues[i].descriptiveText}}" style="height:22px;">
+                     </div>
+                     </div>   
+              </div>
+              
+              <div *ngIf="advanceSearchApiValues[i].datatype == 'LONG'">
+               <!--<div class="col-sm-3 no-padding">
+                <select id="{{documentSearchForm.getPropertyForIndex(i)}}" (change)="onChange($event.target.id,$event.target.value)" class="form-control adv_search_dd">
+                    <option *ngFor="let title of numberComparisonOperators" [selected]="title=='=' ? true : null" >{{title}}</option>
+                </select> 
+              </div> -->
+              <div class="col-sm-3 no-padding">
+                <select *ngIf="documentSearchForm.getPropertyForIndex(i) != 'CorrespondenceType' && documentSearchForm.getPropertyForIndex(i) != 'DocumentType'&& documentSearchForm.getPropertyForIndex(i) != 'DocumentTo' && documentSearchForm.getPropertyForIndex(i) != 'DocumentFrom'" id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" (change)="onChange($event.target.id,$event.target.value)">
+                <option *ngFor="let title of equalOperator" [selected]="title=='=' ? true : null" >{{title}}</option>
+                </select>
+                <select *ngIf="documentSearchForm.getPropertyForIndex(i) == 'CorrespondenceType' ||documentSearchForm.getPropertyForIndex(i) == 'DocumentType'|| documentSearchForm.getPropertyForIndex(i) == 'DocumentTo' || documentSearchForm.getPropertyForIndex(i) == 'DocumentFrom'" id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" (change)="onChange($event.target.id,$event.target.value)">
+                <option *ngFor="let title of numberComparisonOperators" [selected]="title=='=' ? true : null" >{{title}}</option>
+                </select>
+                </div>
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'IsLaunched'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
+                
+                 <!-- <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentFrom'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                  <option ></option>
+                    <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+                   </select>
+                </div>
+                
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentTo'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                  <option ></option>
+                    <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+                </select>
+                </div> -->
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentFrom'">
+                  
+                  <select  *ngIf="DocumentFromSelectBox == 'single'" class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" >
+                    <option ></option>
+                    <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+                   </select>
+                   <p-multiSelect *ngIf="DocumentFromSelectBox == 'multi'"  maxSelectedLabels="4"  class="multiselect-ui "  [options]="populatedocumentfrom"  name="DocumentFrom" [(ngModel)]="selectedDocumentFrom" id="M-DocumentFrom" > 
+                 
+                 </p-multiSelect> 
+                </div>
+                
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentTo'">
+                  <select   class="form-control adv_search_textbox"  *ngIf="DocumentToshowSelectBox == 'single'" name="{{documentSearchForm.getPropertyForIndex(i)}}" >
+                    <option ></option>
+                    <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+                </select>
+            <p-multiSelect *ngIf="DocumentToshowSelectBox == 'multi'"  maxSelectedLabels="4"  class="multiselect-ui " [options]="populatedocumentfrom"  name="DocumentTo" [(ngModel)]="selectedDocumentTo" id="M-DocumentTo" > 
+                 
+                 </p-multiSelect> 
+                </div>
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DepartmentID'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                    <option *ngFor="let department of departmentsAdv" value="{{department.departmentCode}}">{{department.department}}</option>
+                </select>
+                </div>
+                
+               <!--  <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'CorrespondenceType'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                    <option value="1">Internal Incoming</option>
+                    <option value="2">Internal Outgoing</option>
+                    <option value="3">External Incoming</option>
+                    <option value="4">External Outgoing</option>
+                </select>
+                </div> -->
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'CorrespondenceType'">
+                  <select *ngIf="CorespondenceshowSelectBox == 'single'" class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                    <option value="1">Internal Incoming</option>
+                    <option value="2">Internal Outgoing</option>
+                    <option value="3">External Incoming</option>
+                    <option value="4">External Outgoing</option>
+                </select>
+                
+                  <p-multiSelect *ngIf="CorespondenceshowSelectBox == 'multi'"  [options]="populateCorespondence" class="multiselect-ui " name="CorrespondenceType" [(ngModel)]="selectedCorespondence" id="M-CorrespondenceType"> 
+                 
+                 </p-multiSelect>
+                 
+           </div>
+                <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'Confidentiality'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                     <option value="2">Confidential</option>
+                      <option value="1">Non Confidential</option>
+                    
+                </select>
+                </div>
+                
+                <!--<div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentType'">
+                  <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                     <option *ngFor="let docType of documentType" value="{{docType.id}}">{{docType.docType}}</option>
+                    
+                </select>
+                </div>-->
+               <!--  <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentType'">
+                    
+                    <select *ngIf="showSelectBox == 'single'" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="multiselect-ui form-control" >
+                        <option ></option>
+                        <option *ngFor="let docType of documentType" value="{{docType.id}}" title="{{docType.docType}}">{{docType.docType}}</option>
+                    </select>        
+                  
+                  <select *ngIf="showSelectBox == 'multi'" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="multiselect-ui form-control" multiple="multiple" >
+                                <option ></option>
+                                <option *ngFor="let docType of documentType" value="{{docType.id}}" title="{{docType.docType}}">{{docType.docType}}</option>
+                            </select>
+                  </div> -->
+                  
+                   <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentType'">
+              <!--  	<select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                    <option ></option>
+                     <option *ngFor="let docType of documentType" value="{{docType.id}}">{{docType.docType}}</option>
+                    
+                </select>
+                -->
+                                 <select *ngIf="showSelectBox == 'single'" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="multiselect-ui form-control" >
+                          <option ></option>
+                          <option *ngFor="let docType of documentType" value="{{docType.id}}" title="{{docType.docType}}">{{docType.docType}}</option>
+                      </select>        
+             
+                 <p-multiSelect *ngIf="showSelectBox == 'multi'"  maxSelectedLabels="5"  class="multiselect-ui "  [options]="docTypeList"  name="DocumentType" [(ngModel)]="selected" id="M-DocumentType"> 
+                 
+                 </p-multiSelect>
+                </div>
+                
+                 <div class="col-sm-6 no-padding" *ngIf=" documentSearchForm.getPropertyForIndex(i) != 'Confidentiality' && documentSearchForm.getPropertyForIndex(i) != 'DocumentType' && documentSearchForm.getPropertyForIndex(i) != 'CorrespondenceType' && documentSearchForm.getPropertyForIndex(i) != 'DepartmentID' && documentSearchForm.getPropertyForIndex(i) != 'IsLaunched' && documentSearchForm.getPropertyForIndex(i) != 'DocumentTo' && documentSearchForm.getPropertyForIndex(i) != 'DocumentFrom' " >
+                  
+                  <input type="text" (keypress)="isNumber($event)" id="astextbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_textbox" id="doc_title" placeholder="{{advanceSearchApiValues[i].descriptiveText}}" style="height:22px;">
+                </div>
+              </div>
+              </div>
+              
+              <div class="form-group adv_search_fields">
+            <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" >Document Creator</label>
+    
+              
+               <div class="col-sm-3 no-padding" >
+                <select id="documentCreatorCondition" class="form-control adv_search_dd"  
+                         name="selectedTitleSearchOperator">
+                    <option *ngFor="let title of textComparisonOperators" [attr.selected]="title=='is equal to' ? true : null" >{{title}}</option>
+                </select>
+              </div> 
+                <div class="col-sm-6 no-padding" >
+                  <!-- <input type="text" id="documentCreatorValue" class="form-control adv_search_textbox" placeholder="Document Creator" style="height:22px;"> -->
+                  <input auto-complete min-chars="2" [source]="creatorSearchUrl"  (valueChanged)="setCreatorName($event)" display-property-name="employeeName" name="userName" id="documentCreatorValue" class="form-control adv_search_textbox" placeholder="Document Creator" style="height:22px;">
+                </div>
+              </div>
+              
+              <div class="form-group adv_search_fields">
+            <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" >Content Search</label>
+    
+              
+               <div class="col-sm-3 no-padding" >
+                <select id="contentSearchCondition" class="form-control adv_search_dd" name="selectedTitleSearchOperator">
+                    <option value="like" >like</option>
+                </select>
+              </div> 
+                <div class="col-sm-6 no-padding" >
+                  <input type="text" id="contentSearch" class="form-control adv_search_textbox" placeholder="Content Search" style="height:22px;">
+                </div>
+              </div>
+             <!--  <div>
+            <label for="inputPassword" class="col-xs-4 control-label" style="font-weight: bold;" >Content Search</label>
+    
+              
+               <div class="col-sm-3 no-padding" >
+                <select id="contentSearchCondition" class="form-control adv_search_dd" name="selectedTitleSearchOperator">
+                    <option value="like" >like</option>
+                </select>
+              </div> 
+                <div class="col-sm-5 no-padding" >
+                  <input type="text" id="contentSearch" class="form-control adv_search_textbox" placeholder="Content Search" style="height:22px;">
+                </div>
+              </div> -->
+              </div>
+              <div *ngIf="activeTab=='advanceSearch'" class="form-group">
+              <div class="col-sm-offset-4 col-sm-8 no-padding">
+                  <span id ="advFilterMsg" style="display : none; color : red;"><b>Please provide atleast one search criteria and try again</b></span>
+                </div>
+               <div class="col-sm-offset-4 col-sm-8 no-padding">
+                 <button (click)="backpress(actionModal)"  id="backpress" class="btn btn-primary adv_search_btn">Back</button>
+                  <button class="btn btn-primary adv_search_btn">Search</button>
+                  <!--<button class="btn btn-primary adv_search_btn"(click)="actionModal.close()">Cancel</button> -->
+                   <button class="btn btn-primary adv_search_btn"(click)="switchTab('default')">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- end of advance search tab -->
+          <!-- select documents tab -->
+          <div role="tabpanel" class="tab-pane fade  in no-margin" [class.active]="activeTab=='selectDocuments'" id="htab2">
+            <form class="form-horizontal" style="height: 85%">
+              <div class="documentsFound" style="height:440px">
+                <h4>Search Results:{{totalCount}}</h4>
+                <div id="loader" style="position: absolute;left: 50%;top: 50%;margin: 0;"></div>
+               
+                <p class="timer-text" id="timeelapsed">Elapsed time:{{ticks}}s</p>
+                <ul style="height: 90%">
+                    <p class="animate-bottom" style="display:none;color:#737373" id="errortext">{{Errortext}}</p>
+                    
+                       <li class="email-header-item email-header-item--unread" style="background-color: #ccc;">
+                       
+                         <span class="docIcon" ></span>
+                         <span class="docIcon" ></span>
+                        <label class=" list-group-doc task_font" style="padding-left:50px;">
+                            <span class="documentTitle"> <b>Subject</b></span>
+                            <span class="name documents-list"><b>Document ID</b></span>
+                            <span class="documents-list-doc"><b>Reference Number</b></span>
+                        </label>
+                      </li>
+                <li *ngFor="let doc of documentResults">
+                <div style="vertical-align: middle;" >
+                  <input type="checkbox" (change)="selectDocLaunch($event,doc)">
+                  <!-- <span class="glyphicon glyphicon-file"></span> -->
+                  <span class="docIcon" [ngSwitch]="doc.mimeType"
+                          (click)="doc.mimeType == 'image/tif' || doc.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)">
+                          <i *ngSwitchCase="'image/png'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/gif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/jpeg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/jpe'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/bmp'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/jpg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/tif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/tiff'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'image/ico'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchDefault class="glyphicon glyphicon-file" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="fa fa-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/msword'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/doc'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/dot'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/docx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/dotm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/docm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/dotx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.template'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.ms-excel'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.template'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xls'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xlsx'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xla'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xlt'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xltm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xlam'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/xlsb'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.ms-powerpoint'" class="fa fa-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.presentation'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.template'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.slideshow'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/ppt'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/pot'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/pps'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/ppa'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/pptx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/potx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/ppsx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/ppam'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/pptm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/potm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/ppsm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/x-rar-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/octet-stream'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/x-zip-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/x-zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/x-gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/x-rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>                 
+                          <i *ngSwitchCase="'application/x-pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>
+                          <i *ngSwitchCase="'application/acrobat'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>                                                                        
+                     </span>
+  
+                  <span class="docIcon" >
+                      <i *ngIf="doc.IsLaunched == 1" (click)="setAttachmentDocHist(doc)" data-toggle="modal" data-target="#infoModalActionBut" class="glyphicon glyphicon glyphicon-paperclip" ></i>
+                      <span *ngIf="doc.IsLaunched != 1">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  </span>
+  
+                  <label class="list-group-doc task_font">
+                      
+                      <a (click)="doc.mimeType == 'image/tif' || doc.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"  style="cursor:pointer;">
+                        <span class="documentTitle">{{doc.subject}}</span>
+                        <!-- <span class="documentTitle">{{doc.symbolicName}}</span> -->
+                      </a>
+                      <span class="name documents-list">{{doc.documentID}}</span>
+                      <span class="documents-list-doc">{{doc.referenceNo}}</span>
+                  </label>
+                  <span class="date pull-right" *ngIf="doc.showOptions">
+                    <!-- <a style ="cursor:pointer;" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a> -->
+                    <a style ="cursor:pointer;" (click)="viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document')" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a>
+                    <a (click)="setAttachmentDoc(doc)" role="button" data-toggle="modal" data-target="#infoModalActionBut"><span class="glyphicon glyphicon-info-sign task_glyphicon" title="Document Properties"></span></a>
+                    <a [attr.href]="base_url+'/FilenetService/downloadDocument?docId='+doc.id+'&osName='+os_name"><span class="glyphicon glyphicon-save task_glyphicon"></span></a> 
+                    <!--<a (click)="openDocumentActionPopup(doc.documentID, documentMailer)" role="button"><span class="glyphicon glyphicon-envelope task_glyphicon" title="Send By Webmail"></span></a>  -->
+                  </span>
+             </div>
+                </li>
+              </ul>
+              </div>
+            </form>
+  
+            <div class="row">
+                <div align="center">
+                  <table><tr><td>
+                      <button (click)="backpress()"  id="backpress" class="btn btn-primary">Back</button> &nbsp;&nbsp;  
+                  </td><td>
+                      <button type="button" class="btn btn-primary" (click)="switchTab('default')">Select Docs</button>
+                  </td></tr></table>
+                </div>
+               </div>
+  
+          </div>
+          <div role="tabpanel" class="tab-pane fade  in " [class.active]="activeTab=='userSelect'" id="htab2">
+            <user-list [action]="replyObject.reply_type" [currentTask]="toSelectionListAvailability" [selectedToList]="selectedTosList" [selectedCcList]="selectedCcsList" (notifyParentToClose)="switchTab('default')"></user-list>
+          </div>
+        </div>
+      </div>
+    </modal-content>
+  <!--   <modal-footer>
+      <button type="button" class="btn btn-default" (click)="actionModal.close()" data-toggle="tab">Close</button>
+    </modal-footer> -->
+  </modal>
+  <!-- </div> -->
+  <modal #completeActionModal modalClass="modal-sm" id="complete" class="launch_modal_search colored-header colored-header-primary" 
+  [closeOnOutsideClick]="false" [closeOnEscape]="false" (onClose)="completeTask('notComplete',completeActionModal)" >
+    <modal-header>
+      <div class="modal-header">
+            <h3 class="modal-title">Complete</h3>
+        </div>
+    </modal-header>
+    <modal-content class="completeTask">
+      <p style="margin-top: 10px;">
+        Are you sure, you want to complete this workflow?
+      </p>
+      <button type="button" class="btn btn-primary" (click)="completeTask('complete',completeActionModal)" data-toggle="tab">Yes</button>
+      <button type="button" class="btn btn-primary" (click)="completeTask('notComplete',completeActionModal)" data-toggle="tab">Cancel</button>
+    </modal-content>
+  </modal>
+  
+  <document_info_for_actionbutton [currentTab]='currentTab' [selectedAttachmentID]="selectedAttachmentID" [selectedDocument]="selectedDocument" (docAfterChange)="handleDocumentChange($event)"></document_info_for_actionbutton>
+  
+  
+  

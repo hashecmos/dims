@@ -1,0 +1,190 @@
+<div class="dropdown  pull-right">
+    <button class="btn btn-space btn-primary dropdown-toggle" type="button" id="settings" data-toggle="dropdown">
+      <span class="glyphicon glyphicon-cog"></span>
+      <b>Settings</b>
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="settings">
+      <li role="presentation"><a role="menuitem" tabindex="-1"  routerLink="/settings/user-list" style="cursor:pointer;"><b>My User-list</b></a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" (click)="openColumnPrefsModal(ColumnPrefsModal)" style="cursor:pointer;"><b>Column Preferences</b></a></li>
+      <!-- <li role="presentation"><a role="menuitem" tabindex="-1" routerLink="/settings/delegate-user-list"><b>My Delegate Users</b></a></li> -->
+      <li role="presentation" *ngIf="isSecretary == true "><a role="menuitem" tabindex="-1" (click)="openSiteManagerModal(siteManagerModal)"><b>Site Manager</b></a></li>
+    </ul>
+  </div>
+  
+   
+  <!-- Column preferences modal -->
+  <modal #ColumnPrefsModal class="launch_modal_search colored-header colored-header-primary" (onOpen)="actionOnOpen()" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+    <modal-header>
+          <div class="modal-header">
+            <h3 class="modal-title">Column Preferences</h3>
+          </div>  
+    </modal-header>
+    <modal-content>
+        
+          <form (ngSubmit)="updateColumnPrefs(ColumnPrefsModal,$event)">
+          <table width="100%">
+            <tr>
+              <td width="33.3%" valign="top">
+                  <div class="form-group">
+                      <div class="col-sm-12">
+                      <h4 class="heading-floatcenter" id ="Inbox">Inbox</h4>
+                        <div class="checkboxes floatleft">
+                        <label>Subject<input class="floatright" type="checkbox" disabled="disabled" checked id="inboxName" value="workflowItemSubject"/> </label>
+                        <label>Sender Name<input class="floatright" type="checkbox" disabled="disabled" checked id="inboxSender"  value="workflowSenderName"/> </label>
+                        <label>Received On<input class="floatright" type="checkbox" disabled="disabled" checked id="inboxReceivedOn" value="workflowItemReceivedOn"/> </label>
+                        <label>Workflow Deadline<input class="floatright" type="checkbox" disabled="disabled" checked id="inboxDeadline" value="workflowItemDeadline"/> </label>
+                        <label>Instruction<input class="floatright" type="checkbox"  id="inboxStatus" value ="workflowInstruction"/> </label>
+                        <label>Sender Department<input class="floatright" type="checkbox"  id="inboxSender Department" value="workflowItemSenderDepartment"/> </label>
+                        <!-- <label>Receiver Department<input class="floatright" type="checkbox" checked="" id="inboxReceiver Departmentr" value="workflowItemReceiverDepartment" /> </label> -->
+                        <label>Sender Division<input class="floatright" type="checkbox"  id="inboxSender Div" value="workflowItemSenderDiv"/> </label>
+                        <!-- <label>Receiver Div<input class="floatright" type="checkbox" checked="" id="inboxReceiver Div" value="workflowItemReceiverDiv" /> </label> -->
+                      </div>
+                      </div>
+                    </div>
+              </td>
+              <td width="33.3%" valign="top">
+                  <div class="form-group">
+                      <div class="col-sm-12">
+                      <h4 class="heading-floatcenter" id="SentItems">Sent Items</h4>
+                        <div class="checkboxes floatleft">
+                          <label for="Subject">Subject<input class="floatright" type="checkbox" disabled="disabled" checked id="sentSubject" value="workflowItemSubject"/> </label>
+                          <!-- <label >Sender<input class="floatright" type="checkbox" disabled="disabled" checked id="sentSender" value="workflowSender" /> </label> -->
+                          <label for="Sent On">Sent On<input class="floatright" type="checkbox" disabled="disabled" checked id="sentReceivedOn" value="workflowItemReceivedOn"/> </label>
+                          <label for="Deadline">Deadline<input class="floatright" type="checkbox" disabled="disabled" checked id="sentDeadline" value="workflowItemDeadline"/> </label>
+                          <!-- <label for="Status">Status<input class="floatright" type="checkbox" id="Status" value="workflowItemStatus"/> </label> -->
+                          <label for="Sender Department">Sender Department<input class="floatright" type="checkbox" id="sentSender Department" value="workflowItemSenderDepartment"/> </label>
+                          <!-- <label for="Receiver Departmentr">Receiver Department<input class="floatright" type="checkbox" id="sentReceiver Departmentr" value="workflowItemReceiverDepartment"/> </label> -->
+                          <label for="Sender Div">Sender Division<input class="floatright" type="checkbox" id="sentSender Div" value="workflowItemSenderDiv"/> </label>
+                          <!-- <label for="Receiver Div">Receiver Div<input class="floatright" type="checkbox" id="sentReceiver Div" value="workflowItemReceiverDiv"/> </label> -->
+                          
+                        </div>
+                      </div>
+                    </div>
+              </td>
+              <td width="33.4%" valign="top">
+                  <div class="form-group">
+                      <div class="col-sm-12">
+                      <h4 class="heading-floatcenter" id="Archive">Archive</h4>
+                        <div class="checkboxes floatleft">
+                            <label for="Name">Subject<input class="floatright" type="checkbox" disabled="disabled" checked id="archiveName" value = "workflowItemSubject"/> </label>
+                            <label for="Sender">Sender<input class="floatright" type="checkbox" disabled="disabled" checked id="archiveSender" value = "workflowSenderName"/> </label>
+                            <label for="ReceivedOn">ReceivedOn<input class="floatright" type="checkbox" id="archiveReceivedOn" value = "workflowItemReceivedOn"/> </label>
+                            <label for="Deadline">Deadline<input class="floatright" type="checkbox" disabled="disabled" checked id="archiveDeadline" value = "workflowItemDeadline"/> </label>
+                        </div>
+                      </div>
+                    </div>
+              </td>
+            </tr>
+            <tr>
+                
+                <td width="33.3%" valign="top">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                        <h4 class="heading-floatcenter" id="Browse">Document</h4>
+                          <div class="checkboxes floatleft">
+                            <label for="Subject">Subject<input class="floatright" type="checkbox" disabled="disabled" checked id="browseSubject" value="documentSubject"/> </label>
+                            <label for="Reference No">Reference No<input class="floatright" type="checkbox" disabled="disabled" checked id="browseReferenceNo" value="documentReferenceNo"/> </label>
+                            <label for="Document ID">Document ID<input class="floatright" type="checkbox" disabled="disabled" checked id="browseDocumentID" value="documentDocumentID"/> </label>
+                            <label for="Document Date">Document Date<input class="floatright" type="checkbox" id="browseDocumentDate" value="documentDocumentDate"/> </label>
+                            <label for="Department">Department<input class="floatright" type="checkbox" id="browseDepartment" value="documentDepartment"/> </label>
+                            <label for="CreatedBy">Created By<input class="floatright" type="checkbox" id="browseCreatedBy" value="documentCreatedBy"/> </label>
+                            <label for="Date Created">Date Created<input class="floatright" type="checkbox" id="browseDateCreated" value="documentDateCreated"/> </label>
+                          </div>
+                        </div>
+                      </div>
+                </td>
+                <td width="33.3%" valign="top">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                        <h4 class="heading-floatcenter" id="Archive">Daily Document</h4>
+                          <div class="checkboxes floatleft">
+                              <label for="Subject">Subject<input class="floatright" type="checkbox" disabled="disabled" checked id="dailyDocSubject" value = "dailySubject"/> </label>
+                              <label for="Document ID">Document ID<input class="floatright" type="checkbox" disabled="disabled" checked id="dailyDocDocumentId" value = "dailyDocumentId"/> </label>
+                              <label for="Created By">Created By<input class="floatright" type="checkbox" disabled="disabled" checked id="dailyDocCreatedBy" value = "dailyCreatedBy"/> </label>
+                              <label for="Date Created">Date Created<input class="floatright" type="checkbox" disabled="disabled" checked id="dailyDocDateCreated" value = "dailyDateCreated"/> </label>
+                              <label for="Reference Number">Reference Number<input class="floatright" type="checkbox" id="dailyDocRefNumber" value = "dailyRefNumber"/> </label>
+                              <label for="Correspondence Type">Correspondence Type<input class="floatright" type="checkbox" id="dailyDocCorrespType" value = "dailyCorrespType"/> </label>
+                          </div>
+                        </div>
+                      </div>
+                </td>
+                <td width="33.4%" valign="top"></td>
+              </tr>
+             
+              <tr>
+                  <td colspan="2" width="66.6%" style="text-align: left;">
+                      <div class="">
+                        <span style="padding-top:5px;padding-bottom:5px;color:blueviolet;font-size:14px;"> Note : Please click save and then refresh for the new changes</span>
+                      </div>
+                  </td>
+                  <td width="33.4%" style="text-align: right;">
+                      <button type="submit" class="btn btn-primary adv_search_btn" >Save</button>
+                      <button type="button" class="btn btn-primary adv_search_btn" (click)="ColumnPrefsModal.close()">Cancel</button>
+                  </td>
+                </tr>
+          </table>
+           
+          </form>
+        
+    </modal-content>
+    </modal>
+    
+    
+    <!-- Column preferences modal -->
+  <modal #siteManagerModal modalClass="modal-lg"  class="launch_modal_search colored-header colored-header-primary" (onClose)="clearAndClose(siteManagerModal)" (onOpen)="getSiteManagerDetails()" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+    <modal-header>
+          <div class="modal-header">
+            <h3 class="modal-title">Site Manager</h3>
+          </div>  
+    </modal-header>
+    <modal-content>
+    <br>
+    
+    <div id="sucessMsg" style="text-align: center;"> </div>
+    <div class="documentsFound">
+        <table style="width:100%">
+        <tr>
+        <td>Search Sites</td>
+        <td><input type="text" id="siteDesc" style="width:90%"></td>
+        <td></td>
+        <td><input type="button" value ="Search" (click)="serachSite()"></td>
+        </tr>
+        <tr>
+        <td>Adding Sites</td>
+        <td><input type="text" id="addSite"  style="width:90%"></td>
+        <td><label><input type="checkbox" id="addCheckbox"/> External Sites </label></td>
+        <td><input type="button" value="Add" (click)="addSite()"></td>
+        </tr><tr>
+        <td>Update Sites</td>
+        <td><input type="text" id="updateSite"  style="width:90%"></td>
+        <td><label><input type="checkbox" id="updateCheckbox"/> External Sites </label></td>
+        <td style="padding-bottom:20px;"><input type="button" value="Update" (click)="updateSite()"></td>
+        </tr>
+        </table>
+      </div>
+        
+        <div class="documentsFound" style="height:390px;overflow:auto;">
+                   <table class="table table-bordered">
+            <thead class="info-doc-thead">
+                      <tr>
+                        <th>Select</th>
+                        <th>Site ID</th>
+                        <th>Site Description</th>
+                        <th>Site Type</th>
+                      </tr>
+                  </thead>
+                    <tr style="width:100%;text-align: left;" *ngFor="let siteManager of siteManagerData">
+                      <td><input type="radio" [name]="selectedRadio" (change)="SelectedRadio($event,siteManager)"></td>
+                        <td>{{siteManager.siteId}}</td>
+                        <td>{{siteManager.siteName}}</td>
+                      <td>{{siteManager.siteType}}</td>
+                      </tr>
+                      </table>
+            </div>
+            
+            <button class="btn btn-primary adv_search_btn"(click)="clearAndClose(siteManagerModal)">Cancel</button>
+    </modal-content>
+    </modal>
+  
+  

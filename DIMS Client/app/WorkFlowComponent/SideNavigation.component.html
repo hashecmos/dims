@@ -1,0 +1,104 @@
+<!-- <div class="col-sm-3 col-md-2"> -->
+  <!-- <advance-search-modal [launch_popup_msg]="'launch_popup_msg'"></advance-search-modal> -->
+  <hr>
+  <accordion [showArrows]="false" [closeOthers]="true">
+
+
+    <accordion-group  (onOpen)="getInboxFolders('inbox')">
+      <accordion-heading>
+        <accordion-toggle>
+<a routerLinkActive="active1" (click)="removeFolderFilter('inbox')" routerLink="inbox" class="panel-heading"><i class="icon mdi mdi-inbox"></i>&nbsp;&nbsp;Inbox &#9662;</a>
+        </accordion-toggle>
+      </accordion-heading>
+      <ul class="nav nav-pills nav-stacked navDark">
+        <li class="left-content-list no-margin">
+          <a *ngFor="let inboxFolder of inboxFolders" (click)="applyFolderFilter(inboxFolder.folderName,'inbox')" [class.active1]="inboxFolder==activeFolderFilter" class="left-content-tabs">
+            <div class="inboxFolderName">{{inboxFolder.folderFullName}}</div>
+            <div class="clear"></div>
+            <button class="btn btn-default" id="x" (click)="confirmInboxDelete(inboxFolder,deteleinboxfolder)">X</button>
+          </a>
+        </li>
+      </ul>
+    </accordion-group>
+    
+    <accordion-group  (onOpen)="getSentItemsFolders('sent')">
+      <accordion-heading>
+        <accordion-toggle><a routerLinkActive="active1" (click)="removeFolderFilter('sent')" routerLink="sent-item" class="panel-heading"><i class="icon mdi mdi-email"></i>&nbsp;&nbsp;Sent Items &#9662;</a></accordion-toggle>
+      </accordion-heading>
+      <ul class="nav nav-pills nav-stacked">
+        <li class="left-content-list"><a *ngFor="let sentItemFolder of sentItemsFolders" (click)="applyFolderFilter(sentItemFolder.folderName,'sent')" [class.active1]="sentItemFolder==activeFolderFilter" class="left-content-tabs"><span class="glyphicon glyphicon-folder-open">&nbsp;</span><div class="inboxFolderName">{{sentItemFolder.folderFullName}}</div><div class="clear"></div> <button class="btn btn-default" id="x" (click)="confirmDelete(sentItemFolder,detelesentfolder)">X</button></a> </li>
+      </ul>
+    </accordion-group>
+   
+    
+    <accordion-group  (onOpen)="getArchiveFolders('archive')">
+      <accordion-heading>
+        <accordion-toggle>
+          <a routerLinkActive="active1" (click)="removeFolderFilter('archive')" routerLink="archive" class="panel-heading"><i class="icon mdi mdi-archive"></i>&nbsp;&nbsp;Archive &#9662;</a> </accordion-toggle>
+      </accordion-heading>
+      <ul class="nav nav-pills nav-stacked">
+        <li class="left-content-list"><a *ngFor="let archiveFolder of archiveFolders" (click)="applyFolderFilter(archiveFolder.folderName,'archive')" [class.active1]="archiveFolder==activeFolderFilter" class="left-content-tabs"><span class="glyphicon glyphicon-folder-open">&nbsp;</span><div class="inboxFolderName">{{archiveFolder.folderFullName}}</div><div class="clear"></div><button class="btn btn-default" id="x" (click)="confirmArchiveDelete(archiveFolder,detelearchivefolder)">X</button></a></li>
+      </ul>
+    </accordion-group>
+    <accordion-group  *ngIf ="(current_user.employeeJobTitle == 'DCEO' ||current_user.employeeJobTitle == 'TL' ||current_user.employeeJobTitle == 'MGR' ||current_user.employeeJobTitle == 'DIMS') || isSecretary == true " (onOpen)="getArchiveFolders('archive')">
+      <accordion-heading>
+        <accordion-toggle>
+          <a routerLinkActive="active1"  routerLink="dailydocument" class="panel-heading"><i class="icon mdi mdi-archive"></i>&nbsp;&nbsp;Daily Document</a></accordion-toggle>
+      </accordion-heading>
+    </accordion-group>
+    
+    <!-- <ul class="nav nav-pills nav-stacked">
+      <li class="left-content-list">
+        <a *ngIf="showSearchResults" class = "left-content" routerLinkActive="active1" routerLink="task-search" class="panel-heading"><i class="icon mdi mdi-search"></i>&nbsp;&nbsp;Search Results</a></li>
+    </ul> -->
+  </accordion>
+  <misc-support-buttons></misc-support-buttons>
+  <delegate-user></delegate-user>
+<!-- </div>  -->
+
+<!-- <modal #docCannotDoCheckInModel id="checkPop" modalClass="modal-dialog" class="launch_modal_search colored-header colored-header-primary checkinModalClass" [closeOnOutsideClick]="false" [closeOnEscape]="false"></modal> -->
+<modal #detelesentfolder class="modal-dialog launch_modal_search colored-header colored-header-primary checkinModalClass" style="width:40%;" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+  <modal-header>
+    <div class="modal-header">
+          <h3 class="modal-title">Delete Folder</h3>
+      </div>
+  </modal-header>
+  <modal-content class="completeTask">
+    <p >
+      Are you sure you want to remove this folder?
+    </p>
+    <button type="button" class="btn btn-primary" (click)="detelesentfolder.close(); deleteFolder(selectedFolder,detelesentfolder)" data-toggle="tab">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="detelesentfolder.close();" data-toggle="tab">Cancel</button>
+  </modal-content>
+</modal>
+
+
+<modal #deteleinboxfolder class="modal-dialog launch_modal_search colored-header colored-header-primary checkinModalClass" style="width:40%;" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+  <modal-header>
+    <div class="modal-header">
+          <h3 class="modal-title">Delete Folder</h3>
+      </div>
+  </modal-header>
+  <modal-content class="completeTask">
+    <p >
+      Are you sure you want to remove this folder?
+    </p>
+    <button type="button" class="btn btn-primary" (click)="deleteinboxFolder(selectedInboxFolder,deteleinboxfolder)" data-toggle="tab">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="deteleinboxfolder.close();" data-toggle="tab">Cancel</button>
+  </modal-content>
+</modal>
+
+<modal #detelearchivefolder class="modal-dialog launch_modal_search colored-header colored-header-primary checkinModalClass" style="width:40%;" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+  <modal-header>
+    <div class="modal-header">
+          <h3 class="modal-title">Delete Folder</h3>
+      </div>
+  </modal-header>
+  <modal-content class="completeTask">
+    <p >
+      Are you sure you want to remove this folder?
+    </p>
+    <button type="button" class="btn btn-primary" (click)="detelearchivefolder.close(); deletearchiveFolder(selectedArchiveFolder,detelearchivefolder)" data-toggle="tab">Yes</button>
+    <button type="button" class="btn btn-primary" (click)="detelearchivefolder.close();" data-toggle="tab">Cancel</button>
+  </modal-content>
+</modal>

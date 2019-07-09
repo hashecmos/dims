@@ -1,0 +1,586 @@
+<header></header>
+<div class="container">
+  <div class="row ">
+    <div class="col-sm-3 col-md-2 workflowLabel">
+    </div>
+    <div class="col-sm-9 col-md-10 margintop-left" >
+    <h2>
+      <span>Settings -<small> User list</small></span>
+      <!-- <button (click)="openModalForCreate(createUserListModal)" [disabled]="displayUserList.length != 0" class='btn btn-primary'><span class=" glyphicon glyphicon-plus"></span> Create New List</button> -->
+      <button (click)="openModalForCreate(createUserListModal)" class='btn btn-primary'><span class=" glyphicon glyphicon-plus"></span> Create New List</button>
+    </h2>
+    <hr/>
+    <div style = "height: 400px;overflow: auto;">
+    
+     <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+					<th>List Name</th>
+					<th *ngIf="displayUserList.length>1"></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let list of displayUserList;let index = index">
+					<td>{{list.listName}}</td>
+					<td *ngIf="displayUserList.length>1">
+							<button *ngIf="index == 0 " class='btn btn-success' (click)="moveDown(list,index)" ><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+							<button *ngIf="index > 0 && index < displayUserList.length-1 " class='btn btn-success' (click)="moveUp(list,index)" ><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
+							<button *ngIf="index > 0 && index < displayUserList.length-1 " class='btn btn-success' (click)="moveDown(list,index)" ><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+							<button *ngIf="index == displayUserList.length-1 " class='btn btn-success' (click)="moveUp(list,index)" ><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
+					</td>
+          <td>
+            <button (click)="openModalForEdit(list,createUserListModal)" class='btn btn-primary'><span class="glyphicon glyphicon-cog"></span> Edit</button>
+						<button (click)="confirmAction(list,confirmDeleteModal)" class='btn btn-primary'><span class="glyphicon glyphicon-remove-sign"></span> Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+   
+      <a routerLink="/work-flow/inbox" class='btn btn-primary'><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+<modal #createUserListModal modalClass="modal-lg" (onClose)="resetFields()" class="launch_modal_search colored-header colored-header-primary">
+  <modal-header>
+   
+        <div class="modal-header">
+          <h3 class="modal-title">{{currentAction}} Default User list</h3>
+        </div>
+      
+  </modal-header>
+  <modal-content>
+			<div style="height:500px">
+					<div class="left-sidebar" style=" overflow-y: auto;height:500px;">
+  
+           <div id="accordion-menu" >
+             <ul>
+                
+                <li>
+                   <accordion [closeOthers]="true">
+	                <accordion-group #divisionsThing *ngFor="let division of divisions" heading="My Division" (click)="loadUsersForDivision(division)" (onClose)="disableSelectedUser()"  [isOpened]="true">
+	                 <div>
+					  <div class="open collapsed">
+					   <div>
+					   	<table class="table table-striped">
+					   	 <tbody>
+					   	   <tr>
+					   	   	 <td><input id="searchCriteria" class="form-control input-sm" type="text" (keypress)="searchDivision($event,division)"></td>
+						     <td><button class="clear" (click)="loadUsersForDivision(division)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+						     <td><button class="search" (click)="getDivisionUserList(division)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+						   </tr>
+						 </tbody>
+						</table>
+					  </div>					
+					  <div class ="scrollit">
+						<table class="table table-striped">
+					      <thead>
+					       <tr style="font-size: smaller;font-weight: bold;">
+					         <td>Full Name</td>
+									 <td style="cursor:pointer;" (click)="selectAll(division.users,'cc')">Select User</td>
+					         <td style="cursor:pointer;" (click)="selectAll(division.users,'none')">None</td>
+					       </tr>
+					      </thead>
+					      <tbody>
+					       <tr *ngFor="let user of division.users" style="font-size: smaller;font-weight: bold;">
+						     <td >{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+						     <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+						     <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+						   </tr>
+						   <tr>
+						   </tbody>
+						 </table>
+						</div>
+					 </div>
+				    </div> 
+				   </accordion-group>
+			<!-- </accordion>
+               </li>
+                <li>
+                 <accordion> -->
+                  <accordion-group #departmentThing *ngFor="let department of departments" heading="My Department" (click)="loadUsersForDepartment_5(department)" (onClose)="disableSelectedUser()" [isOpened]="false">
+		           <div>
+		            <div class="open collapsed">
+		             <div>
+		              <table class="table table-striped">
+		               <tbody>
+		                <tr>
+		                 <td><input id = "deptsearchCriteria" type="search" class="form-control input-sm" (keypress)="searchDepartment_5($event,department)"></td>
+						 <td><button class="clear" (click)="loadUsersForDepartment_5(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+						 <td><button class="search" (click)="getDepartmentUserList_5(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+						</tr>
+					   </tbody>
+					  </table>
+					 </div>
+			    	<div class ="scrollit">
+			    	 <table class="table table-striped">
+			    	  <thead>
+			    	   <tr style="font-size: smaller;font-weight: bold;">
+			    	    <td>Full Name</td>
+								<td style="cursor:pointer;" (click)="selectAll(department.users,'cc')">Select User</td>
+								<td style="cursor:pointer;" (click)="selectAll(department.users,'none')">None</td>
+			    	    </tr>
+			    	  </thead>
+			    	  <tbody>
+			    	   <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+					    <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+					    <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+					    <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+					  </tr>
+				     </tbody>
+					</table>
+				    </div>
+				   </div>
+				  </div>
+				 </accordion-group>
+				 
+				 <!-- <accordion-group *ngFor="let department of departments"  [attr.hidden]="false" heading="Cross Department" (onClose)="disableSelectedUser()">
+																<div>
+																	<div class="open collapsed">
+																	<div>
+																	<table class="table table-striped">
+																		<tbody>
+																			<tr>
+																				<td><input id = "deptsearchCriteria" type="search" class="form-control input-sm" (keypress)="searchCrossDepartment($event)"></td>
+																				<td><button class="clear"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																				<td><button class="search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																			</tr>
+																		</tbody>
+																	</table>
+																	</div>
+																		<div class ="scrollit">
+																		<table class="table table-striped">
+					                                                    <thead>
+					                                                      <tr style="font-size: smaller;font-weight: bold;">
+					                                                        <td>Full Name</td>
+					                                                        <td>Select User</td>
+					                                                        <td>None</td>
+					                                                      </tr>
+					                                                    </thead>
+					                                                    <tbody>
+						                                                      <tr style="font-size: smaller;font-weight: bold;">
+						                                                        <td><br> <span style="font-size: smaller;font-style: italic;"></span></td>
+						                                                        <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+						                                                        <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+						                                                      </tr>
+																		</tbody>
+																		</table>
+																		
+																		</div>
+																		
+																	</div>
+																</div>
+															 </accordion-group> -->
+															 
+<!--   Ravi Boni changes -->
+<div *ngIf ="empJobTitle == 'CEO' || empJobTitle == 'DCEO' ||empJobTitle == 'TL' || empJobTitle == 'MGR' || empJobTitle == 'CRDEP' ">
+		<accordion-group #crossDptThing id="crossdept" *ngFor="let department of departments"  heading="Cross Department" (onClose)="disableToCC()" (onOpen)="loadCrossDepartmentUsers()" [isOpened]="false">
+		 <div>
+			 <div class="open collapsed">
+			 <div>
+			 <table class="table table-striped">
+				 <tbody>
+					 <tr>
+						 <td><input id = "crosssearchCriteria" type="search" class="form-control input-sm" (keypress)="searchCrossDepartment($event)"></td>
+						 <td><button class="clear" (click)="loadCrossDepartmentUsers()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+						 <td><button class="search" (click)="getCrossDepartmentUserList()" ><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+					 </tr>
+				 </tbody>
+			 </table>
+			 </div>
+				 <div class ="scrollit">
+				 
+				 <table class="table table-striped">
+																	 <thead>
+																		 <tr style="font-size: smaller;font-weight: bold;">
+																			 <td>Full Name</td>
+																			 <td style="cursor:pointer;" (click)="selectAll(crossDepartment,'cc')">Select User</td>
+																			 <td style="cursor:pointer;" (click)="selectAll(crossDepartment,'none')">None</td>
+																		 </tr>
+																	 </thead>
+																	 <tbody>
+																			 <tr *ngFor="let user of crossDepartment" style="font-size: smaller;font-weight: bold;">
+																			 <td>{{user.employeeName}}<br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+																				 <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+																				 <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+																			 </tr>
+				 </tbody>
+				 </table>
+				 
+				 </div>
+				 
+			 </div>
+		 </div>
+		</accordion-group>
+		
+		</div> 
+		
+<!-- End --> 
+
+													 		<div *ngIf ="empJobTitle == 'CEO' || empJobTitle == 'DCEO' ||empJobTitle == 'TL' || empJobTitle == 'MGR' || empJobTitle == 'DIMS' ">
+													 		<accordion-group #hierarchyThing heading="KNPC Hierarchy List" (onOpen)="loadKNPCHierarchy()" (onClose)="disableSelectedUser_1()" [isOpened]="false">
+																
+																<div>
+																	<table class="table table-striped">
+																		<tbody>
+																			<tr>
+																				<td><input id = "deptsearchCriteria1" type="search" class="form-control input-sm" (keypress)="searchKNPCDepartment_1($event)"></td>
+																				<td><button class="clear" (click)="loadUsersForDepartment_2()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																				<td><button class="search" (click)="getDepartmentUserList_1()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																			</tr>
+																		</tbody>
+																	</table>
+																	</div>
+																
+																<div class="scrollit_knpc_hierarchy_list">
+																	<accordion>
+              																<accordion-group *ngFor="let department of knpcHierarchy" heading="{{department.department}}" (onOpen)="loadUsersForDepartment(department)" (onClose)="disableSelectedUser_2()">
+              																	
+                  																		<div>
+																							<div class="open collapsed">
+																							<div>
+																							<table class="table table-striped">
+																								<tbody>
+																									<tr>
+																										<td><input id = "deptsearchCriteria" type="search" class="form-control input-sm" (keypress)="searchKNPCDepartment($event,department)"></td>
+																										<td><button class="clear" (click)="loadUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																										<td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																									</tr>
+																								</tbody>
+																							</table>
+																							</div>
+																								<!-- <div class ="scrollit"> -->
+																								<table class="table table-striped">
+											                                                    <thead>
+											                                                      <tr style="font-size: smaller;font-weight: bold;">
+											                                                        <td>Full Name</td>
+																																							<td style="cursor:pointer;" (click)="selectAll(department.users,'cc')">Select User</td>
+																																							<td style="cursor:pointer;" (click)="selectAll(department.users,'none')">None</td>
+											                                                      </tr>
+											                                                    </thead>
+											                                                    <tbody>
+												                                                      <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+												                                                        <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+												                                                        <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+												                                                        <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+												                                                      </tr>
+																								</tbody>
+																								</table>
+																								
+																								<!-- </div> -->
+																								
+																							</div>
+																						</div>
+                  																
+              																</accordion-group>
+              														</accordion>		
+																</div>
+													 		</accordion-group>
+				`											</div>
+				              </accordion>
+				              </li>
+				              </ul>
+           </div>
+           
+  </div>
+	
+	<div class="col-sm-6" style="float: right; margin-top: 10px;">
+	   <div class="content">
+	   
+			   <div class="tab-content clearfix">
+                                          <div class="tab-pane active " id="basic-information">
+																						<div *ngIf="isListExisted" style="font-weight: bold; color:red;" align="center">User List with same name already exist.</div>
+																							<div class="section-1">
+																									<div class="form-group">
+																											<div class="row col-sm-12" style="padding:10px;">
+																													<label for="listName" class="col-sm-4 control-label" style="font-weight: bold;">List Name:</label>
+																															<div class="col-sm-8">
+																															<input id="listName" type="text" [(ngModel)]="UserList.listName" class="form-control input-sm adv_search_textbox" placeholder="List Name" name="subject">
+																														</div>
+																													</div>
+																										</div>
+																									</div>
+                                                    
+                                                  <div class="section-2">
+                                                    <div class="form-group">
+                                                      <div class="row col-sm-12" style="padding:10px;">
+                                                       <label for="listName" class="col-sm-4 control-label" style="font-weight: bold;">Selected Users:</label>
+                                                        <div class="col-sm-8">
+                                                        <input id="selectedUsers" disabled class="form-control input-sm" auto-complete [(ngModel)]="user" type="text" (ngModelChange)="addUserToList($event)" placeholder="Search Users" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="user" />
+                                                         <span *ngFor="let user of selectedUsers" class="selected_names_of_lunch">
+																														<span>{{ user }}<a class="remove_contact" (click)="removeFromList($event, user)">x</a></span>
+																												</span>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    
+                                                  </div>
+                                                  <div class="section-3">
+                                                  <div class="form-group">
+                                                      <div class="row col-sm-12" style="padding:10px;">
+                                                        <label class="col-sm-4 control-label" style="font-weight: bold;"></label>
+                                                        <div class="col-sm-8">
+                                                          <!-- <button (click)="createOrModifyList(createUserListModal)" [disabled]="selectedUsers==0 || UserList.listName.length == 0 " class='btn btn-block btn-primary'>{{currentAction}} List</button> -->
+                                                        	<button (click)="createOrModifyList(createUserListModal)" [disabled]="selectedUsers==0 || userlistNameEmpty()" class='btn btn-block btn-primary'>{{currentAction}} List</button>
+																												</div>
+                                                      </div>
+                                                    </div>
+                                                   
+                                                  </div>
+                                   				</div>
+                                              </div>
+	   
+	   </div>
+  </div>
+  </div>
+  
+  </modal-content>
+</modal>
+
+
+<modal #confirmDeleteModal class="modal-dialog launch_modal_search colored-header colored-header-primary checkinModalClass">
+<modal-header>
+		<div class="modal-header">
+				<h3 class="modal-title">Delete User List</h3>
+		</div>
+ 
+</modal-header>
+<modal-content>
+  <div class="completeTask">
+	<p >
+			Are you sure you want to Delete the list "{{selectedList?.listName}}" ?
+		</p>
+  <button class="btn btn-primary" (click)="deleteSelectedList(confirmDeleteModal)">Yes</button>
+  <button class="btn btn-primary" (click)="confirmDeleteModal.close()">No</button>
+  </div>
+</modal-content>
+</modal>
+
+<!-- <div id="createUserListModal" tabindex="-1" role="dialog" class="modal fade colored-header colored-header-primary" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog custom-width">
+       <div class="modal-content">
+          <div class="modal-header">
+             <button type="button" data-dismiss="modal" aria-hidden="true" class="close md-close"><span class="mdi mdi-close"></span></button>
+             <h3 class="modal-title">{{currentAction}}- User List</h3>
+          </div>
+          <div class="modal-body">
+           <div class="left-sidebar">
+            <div class="panel-group" id="accordion-menu">
+              <ul>
+                
+                <li>
+                   <accordion [closeOthers]="true">
+	                <accordion-group *ngFor="let division of divisions" heading="My Division" (onOpen)="loadUsersForDivision(division)">
+	                 <div>
+					  <div class="open collapsed">
+					   <div>
+					   	<table class="table table-striped">
+					   	 <tbody>
+					   	   <tr>
+					   	   	 <td><input id="searchCriteria" class="form-control input-sm" type="text"></td>
+						     <td><button class="clear" (click)="loadUsersForDivision(division)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+						     <td><button class="search" (click)="getDivisionUserList(division)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+						   </tr>
+						 </tbody>
+						</table>
+					  </div>					
+					  <div class ="scrollit">
+						<table class="table table-striped">
+					      <thead>
+					       <tr style="font-size: smaller;font-weight: bold;">
+					         <td>Full Name</td>
+					         <td>Select User</td>
+					         <td>None</td>
+					       </tr>
+					      </thead>
+					      <tbody>
+					       <tr *ngFor="let user of division.users" style="font-size: smaller;font-weight: bold;">
+						     <td >{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+						     <td><input type="radio" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+						     <td><input type="radio" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+						   </tr>
+						   <tr>
+						   </tbody>
+						 </table>
+						</div>
+					 </div>
+				    </div>
+				   </accordion-group>
+			</accordion>
+               </li>
+                <li>
+                 <accordion>
+                  <accordion-group *ngFor="let department of departments" heading="My Department" (onOpen)="loadUsersForDepartment(department)">
+		           <div>
+		            <div class="open collapsed">
+		             <div>
+		              <table class="table table-striped">
+		               <tbody>
+		                <tr>
+		                 <td><input id = "deptsearchCriteria" type="search" class="form-control input-sm"></td>
+						 <td><button class="clear" (click)="loadUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+						 <td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+						</tr>
+					   </tbody>
+					  </table>
+					 </div>
+			    	<div class ="scrollit">
+			    	 <table class="table table-striped">
+			    	  <thead>
+			    	   <tr style="font-size: smaller;font-weight: bold;">
+			    	    <td>Full Name</td>
+			    	    <td>Select User</td>
+			    	    <td>None</td>
+			    	    </tr>
+			    	  </thead>
+			    	  <tbody>
+			    	   <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+					    <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+					    <td><input type="radio" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+					    <td><input type="radio" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+					  </tr>
+				     </tbody>
+					</table>
+				    </div>
+				   </div>
+				  </div>
+				 </accordion-group>
+				 
+				 <accordion-group *ngFor="let department of departments"  [attr.hidden]="false" heading="Cross Department">
+																<div>
+																	<div class="open collapsed">
+																	<div>
+																	<table class="table table-striped">
+																		<tbody>
+																			<tr>
+																				<td><input id = "deptsearchCriteria" type="search" class="form-control input-sm"></td>
+																				<td><button class="clear"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																				<td><button class="search"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																			</tr>
+																		</tbody>
+																	</table>
+																	</div>
+																		<div class ="scrollit">
+																		<table class="table table-striped">
+					                                                    <thead>
+					                                                      <tr style="font-size: smaller;font-weight: bold;">
+					                                                        <td>Full Name</td>
+					                                                        <td>Select User</td>
+					                                                        <td>None</td>
+					                                                      </tr>
+					                                                    </thead>
+					                                                    <tbody>
+						                                                      <tr style="font-size: smaller;font-weight: bold;">
+						                                                        <td><br> <span style="font-size: smaller;font-style: italic;"></span></td>
+						                                                        <td><input type="radio" (change)="SelectedCcRadio($event,user)"></td>
+						                                                        <td><input type="radio" (change)="SelectedNoneRadio($event,user)"></td>
+						                                                      </tr>
+																		</tbody>
+																		</table>
+																		
+																		</div>
+																		
+																	</div>
+																</div>
+													 		</accordion-group>
+													 		<accordion-group heading="KNPC Hierarchy List" (onOpen)="loadKNPCHierarchy()">
+																<div class="scrollit_knpc_hierarchy_list">
+																	<accordion>
+              																<accordion-group *ngFor="let department of knpcHierarchy" heading="{{department.department}}" (onOpen)="loadUsersForDepartment(department)">
+              																	
+                  																		<div>
+																							<div class="open collapsed">
+																							<div>
+																							<table class="table table-striped">
+																								<tbody>
+																									<tr>
+																										<td><input id = "deptsearchCriteria" type="search" class="form-control input-sm"></td>
+																										<td><button class="clear" (click)="loadUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+																										<td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+																									</tr>
+																								</tbody>
+																							</table>
+																							</div>
+																								<div class ="scrollit">
+																								<table class="table table-striped">
+											                                                    <thead>
+											                                                      <tr style="font-size: smaller;font-weight: bold;">
+											                                                        <td>Full Name</td>
+											                                                        <td>Select User</td>
+											                                                        <td>None</td>
+											                                                      </tr>
+											                                                    </thead>
+											                                                    <tbody>
+												                                                      <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+												                                                        <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+												                                                        <td><input type="radio" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+												                                                        <td><input type="radio" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+												                                                      </tr>
+																								</tbody>
+																								</table>
+																								
+																								</div>
+																								
+																							</div>
+																						</div>
+                  																
+              																</accordion-group>
+              														</accordion>		
+																</div>
+													 		</accordion-group>
+				`
+				              </accordion>
+				              </li>
+				              </ul>
+				               </div>
+				               </div>
+                                 <div class="content">
+                                     <div class="tab-content clearfix">
+                                          <div class="tab-pane active userlistminwidth col-sm-offset-3" id="basic-information">
+                                             <div class="section-1">
+                                                <div class="form-group">
+                                                   <div class="row">
+                                                      <label for="listName" class="col-sm-3 control-label" style="font-weight: bold;">List Name:</label>
+                                                          <div class="col-sm-9">
+                                                          <input id="listName" type="text" [(ngModel)]="UserList.listName" class="form-control input-sm adv_search_textbox" placeholder="List Name" name="subject">
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                 </div>
+                                                  <div class="section-2">
+                                                    <div class="form-group">
+                                                      <div class="row">
+                                                       <label for="listName" class="col-sm-3 control-label" style="font-weight: bold;">Selected Users:</label>
+                                                        <div class="col-sm-9">
+                                                        <input id="selectedUsers" class="form-control input-sm" auto-complete [(ngModel)]="user" type="text" (ngModelChange)="addUserToList($event)" placeholder="Search Users" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="user" />
+                                                         <span *ngFor="let user of selectedUsers" class="selected_names_of_lunch">
+											                  <span>{{ user }}<a class="remove_contact" (click)="removeFromList($event, user)">x</a></span>
+											              </span>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                    
+                                                  </div>
+                                                  <div class="section-3">
+                                                  <div class="form-group">
+                                                      <div class="row">
+                                                        <label class="col-sm-3 control-label" style="font-weight: bold;">currentAction:</label>
+                                                        <div class="col-sm-9">
+                                                           <button (click)="createOrModifyList(createUserListModal,'Create')" class='btn btn-block btn-primary'>Current Action List</button>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                   
+                                                  </div>
+                                   				</div>
+                                              </div>
+                                            </div>
+                                          </div>
+       </div>
+     </div>
+</div> -->

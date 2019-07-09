@@ -1,0 +1,135 @@
+body {
+  background-color: #ffffff;
+}
+
+.list-group .dropdown-menu {
+  top: auto;
+  left: 10%;
+}
+
+.list-group {
+  text-align: center;
+  padding: 20px 25px;
+}
+
+.aside-nav.delegated-user {
+  text-align: center;
+  padding: 20px 25px;
+}
+
+.delegated-user ul {
+  margin: 5px;
+  padding-left: 5px;
+}
+
+.delegated-user ul li {
+  border: solid black 1px;
+  padding: 5px;
+  margin: 5px 0px;
+}
+
+.aside-nav.delegated-user ul li a {
+  padding: 0px;
+}
+
+.help-support > div {
+  float: left;
+  width: 50%;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.help-support button, .help-support a {
+  width: 100%;
+  padding: 0px 5px;
+}
+
+.help-support ul li {
+  border: solid black 1px;
+  padding: 5px;
+  margin: 5px 0px;
+}
+
+.dims-repo {
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 28px;
+  border: 1px solid transparent;
+  border-color: #dedede;
+  border-radius: 2px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.email-inbox-header .dropdown {
+  display: inline-block;
+}
+
+.delegated-user-head {
+  background-color: #ffffff;
+  padding: 25px 25px;
+}
+
+.delegated-user-head h1, .delegated-user-head h3 {
+  display: inline-block;
+}
+
+.delegated-user-head button {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+#delegated-user-table {
+  padding: 0px 30px;
+}
+
+.email-attachments ul.attachments > li {
+  display: inline-block;
+  width: 120px;
+  margin: 0px 10px;
+  padding: 10px 0px;
+  border: solid 1px #dedede;
+}
+
+.email-attachments p {
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.email-attachments .attachment > .fa {
+  font-size: 50px;
+  line-height: 50px;
+  display: block;
+}
+
+.email-attachments .attachment {
+  position: relative;
+}
+
+.email-attachments .attachment-actions {
+  list-style-type: none;
+  position: absolute;
+  background: rgba(0,0,0,0.8);
+  width: 120px;
+  height: 135px;
+  display: block;
+  top: 0px;
+  left: 0px;
+  padding-top: 20px;
+  padding-left: 10px;
+}
+
+.email-attachments .attachment-actions li a   {
+  padding: 0px 5px;
+  color: #FFF;
+}
+
+.email-attachments .attachment-actions .fa {
+  color: #FFF;
+}
+
+#email-attachment .input-group-btn {
+  text-align: center;
+}

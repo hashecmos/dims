@@ -1,0 +1,38 @@
+<!-- support btn footer Component-->
+
+<div class="supportButtons ">
+  <div class="aside-compose">
+  	<button class="btn btn-lg btn-red btn-block" data-toggle="modal" data-target="#supportStaffModel">
+      <i class="glyphicon glyphicon-user paddingicon"></i>SUPPORT Staff</button>
+ <!--    <button class="btn btn-lg btn-red btn-block" data-toggle="dropdown">
+      <i class="glyphicon glyphicon-cog paddingicon"></i>HELP Materials <span class="caret"></span></button> -->
+    <ul class="dropdown-menu module_dd_menu_search margin-left" role="menu">
+      <li>
+        <a (click)="getUserManual()" class="right-top-all-btn" data-toggle="modal" data-target="#helpUserManual">
+          <span class="WorkFlow-btn">User Manual</span>
+        </a>
+      </li>
+      <li>
+        <a (click)="getPresentations()" class="right-top-all-btn" data-toggle="modal" data-target="#helpPresentations">
+          <span class="WorkFlow-btn">Presentations</span>
+        </a>
+      </li>
+      <li>
+        <a (click)="getVideos()" class="right-top-all-btn" data-toggle="modal" data-target="#helpVideos">
+          <span class="WorkFlow-btn">Videos</span>
+        </a>
+      </li>
+      <li>
+        <a (click)="getAudios()" class="right-top-all-btn" data-toggle="modal" data-target="#helpAudios">
+          <span class="WorkFlow-btn">Audios</span>
+        </a>
+      </li>
+      <li>
+        <a (click)="getToCc()" class="right-top-all-btn" data-toggle="modal" data-target="#to_cc_modalbox">
+          <span class="WorkFlow-btn">To & CC</span>
+        </a>
+      </li>
+
+    </ul>
+  </div>
+</div>

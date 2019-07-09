@@ -1,0 +1,913 @@
+<div class="aside-compose"> <button class="btn btn-lg btn-green btn-block" *ngIf="launch_popup_msg == 'launch_popup_msg'" (click)="openLaunchPopup(launchModal)" ><span>Launch</span></button></div>
+
+ <modal #launchModal modalClass="" id={{activeTab}} class="launch_modal_search colored-header colored-header-primary" (onOpen)="getUserList()" (onClose)="clearAdvanceList();" [closeOnOutsideClick]="false" [closeOnEscape]="false">
+ <modal-header>
+       <div class="modal-header">
+           <h3 class="modal-title">{{launchModalHeading}}</h3>
+       </div>
+ </modal-header>
+ <modal-content class="launch_modal_content" style="height: 95%">
+   <div class="tab-content">
+     <!-- simple search tab -->
+     <div role="tabpanel" class="tab-pane fade  in no-margin" [class.active]="activeTab=='simpleSearch'" id="htab2">
+       <h3 class="headerSearch">Search Documents</h3>
+       <form class="form-horizontal">
+         <div class="form-group">
+           <label for="inputPassword" class="col-sm-4 control-label">Document ID</label>
+           <div class="col-sm-8">
+             <input type="text" [(ngModel)]="simpleSearchForm.DocumentID" class="form-control" name="doc_title" id="doc_title" placeholder="Document Id">
+           </div>
+         </div>
+         <div class="form-group">
+           <label for="inputPassword" class="col-sm-4 control-label">Reference Number</label>
+           <div class="col-sm-8">
+             <input type="text" [(ngModel)]="simpleSearchForm.ReferenceNo" name="referenceno" class="form-control" id="referenceno" placeholder="Reference Number">
+           </div>
+         </div>
+         <div class="form-group">
+           <label for="inputPassword" class="col-sm-4 control-label">Subject</label>
+           <div class="col-sm-8">
+             <input type="document_id" [(ngModel)]="simpleSearchForm.DocumentTitle" (ngModelChange)="updateSubject()" name="emailsubject" class="form-control" id="emailsubject" placeholder="Subject">
+           </div>
+         </div>
+         <div class="form-group">
+           <label for="inputPassword" class="col-sm-4 control-label">Document Date</label>
+           <div class="col-sm-8">
+             <my-date-picker name="dateCreated" id="date" (ngModelChange)="clickinput()" [options]="myDatePickerOptions" [(ngModel)]="simpleSearchForm.dateCreated"></my-date-picker>
+           </div>
+         </div>
+         
+         <div class="form-group">
+           <div class="col-sm-offset-4 col-sm-8">
+             <span id ="filterMsg" style="display : none; color : red;"><b>Please provide at least one search criteria and try again</b></span>
+           </div>
+
+           <div class="col-sm-offset-4 col-sm-8">
+             <span id ="subjectMsg1" style="display : none; color : red;"><b>Please provide at least four characters for Subject and try again</b></span>
+           </div>
+         </div>
+         <div class="form-group">
+           <div class="col-sm-offset-4 col-sm-8">
+             <button class="btn btn-primary" (click)="simpleSearchDocuments(launchModal)">Search</button>
+             <div class="inline" (click)="switchTab(launchModal,'advanceSearch')"><a class="btn btn-primary">Advance Search</a></div>
+             <button class="btn btn-primary"(click)="closeModel()">Cancel</button>
+           </div>
+         </div>
+       </form>
+     </div>
+     <!-- end of simple search tab -->
+     <!-- advance search tab -->
+     <div role="tabpanel" [class.active]="activeTab=='advanceSearch'" id="htab2" [class.height95]="activeTab=='advanceSearch'">
+       <div *ngIf="activeTab=='advanceSearch'"><h3 class="headerSearch">Search Documents</h3></div>
+       <form class="form-horizontal" role="form" (ngSubmit)="advanceSearchDocuments(launchModal,$event)">
+       <div *ngIf="activeTab=='advanceSearch'" class="tab-pane fade  in no-margin advance_search_modal" style="height:390px">
+         <div>
+         <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" >Added by Me</label>
+             <div class="col-sm-10 no-padding">
+               <input type="checkbox" id="addedByMe" style="height:22px;">
+             </div>
+           </div>
+         <div class="form-group adv_search_fields" *ngFor="let resDoc of documentSearchForm.attributes;let i = index;">
+              <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) != 'DateReceived' && documentSearchForm.getPropertyForIndex(i) != 'DocumentTitle' && documentSearchForm.getPropertyForIndex(i) != 'DocumentID' && documentSearchForm.getPropertyForIndex(i) != 'DepartmentID'" >{{advanceSearchApiValues[i].descriptiveText}}</label>
+             <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DepartmentID'" >Department</label>
+             <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DocumentID'" >Document ID</label>
+             <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DateReceived'" >Date Created</label>
+               <div *ngIf="advanceSearchApiValues[i].datatype == 'DATE'">
+             <div class="col-sm-3 no-padding">
+             <select id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" name="selectedTitleSearchOperator" (change)="updateFields(documentSearchForm.getPropertyForIndex(i))">
+                 <option *ngFor="let title of dateComparisonOperators" [attr.selected]="title=='period'? true:null" class="col-sm-2 dropdown-options">{{title}}</option>
+             </select>
+           </div>
+              <div class="col-sm-6 no-padding">
+                 <my-date-picker id="{{documentSearchForm.getPropertyForIndex(i)}}datePicker" [options]="myDatePickerOptions"  style="display:none;"></my-date-picker>
+             </div>
+             <div class="col-sm-6 no-padding">
+                    <my-date-range-picker id="{{documentSearchForm.getPropertyForIndex(i)}}dateRange" [options]="myDateRangePickerOptions" style="display:none"></my-date-range-picker>
+             </div>
+             <div class="col-sm-6 no-padding">
+                 <select id="{{documentSearchForm.getPropertyForIndex(i)}}period" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd"  style="display:block;">
+                   <option value=""></option>
+                   <option value="Today">Today</option>
+                   <option value="This Week">This Week</option>
+                   <option value="This Month">This Month</option>
+               </select>
+             </div>
+           </div>
+           <div *ngIf="advanceSearchApiValues[i].datatype == 'STRING'">
+            <div *ngIf= "documentSearchForm.getPropertyForIndex(i) != 'DocumentTitle' && documentSearchForm.getPropertyForIndex(i) != 'DocumentID'">
+            <div class="col-sm-3 no-padding">
+             <select id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" name="selectedTitleSearchOperator">
+                 <option *ngFor="let title of textComparisonOperators" [attr.selected]="title=='is equal to'?true:null" class="col-sm-2 dropdown-options">{{title}}</option>
+             </select>
+           </div> 
+             <div class="col-sm-6 no-padding">
+               <input type="text" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_textbox" id="doc_title" placeholder="{{documentSearchForm.getPropertyForIndex(i)}}" style="height:22px;">
+             </div>
+             </div>
+             <div *ngIf= "documentSearchForm.getPropertyForIndex(i) == 'DocumentID' ">
+                <div class="col-sm-3 no-padding" >
+                 <select id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd"  
+                          name="selectedTitleSearchOperator">
+                          <option *ngFor="let title of equalOperatorForDocuemntID" [attr.selected]="title == 'is equal to' ? true : null" >{{title}}</option>
+                 </select>
+               </div> 
+                 <div class="col-sm-6 no-padding" >
+                   <input type="text" id="astextbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_textbox" id="doc_title" placeholder="{{advanceSearchApiValues[i].descriptiveText}}" style="height:22px;">
+                 </div>
+                 </div>   
+           </div>
+           
+           <div *ngIf="advanceSearchApiValues[i].datatype == 'LONG'">
+            <!--<div class="col-sm-3 no-padding">
+             <select id="{{documentSearchForm.getPropertyForIndex(i)}}" (change)="onChange($event.target.id,$event.target.value)" class="form-control adv_search_dd">
+                 <option *ngFor="let title of numberComparisonOperators" [selected]="title=='=' ? true : null" >{{title}}</option>
+             </select>
+           </div>-->
+           <div class="col-sm-3 no-padding">
+            <select *ngIf="documentSearchForm.getPropertyForIndex(i) != 'CorrespondenceType' && documentSearchForm.getPropertyForIndex(i) != 'DocumentType'&& documentSearchForm.getPropertyForIndex(i) != 'DocumentTo' && documentSearchForm.getPropertyForIndex(i) != 'DocumentFrom'" id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" (change)="onChange($event.target.id,$event.target.value)">
+            <option *ngFor="let title of equalOperator" [selected]="title=='=' ? true : null" >{{title}}</option>
+            </select>
+            <select *ngIf="documentSearchForm.getPropertyForIndex(i) == 'CorrespondenceType' ||documentSearchForm.getPropertyForIndex(i) == 'DocumentType'|| documentSearchForm.getPropertyForIndex(i) == 'DocumentTo' || documentSearchForm.getPropertyForIndex(i) == 'DocumentFrom'" id="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_dd" (change)="onChange($event.target.id,$event.target.value)">
+            <option *ngFor="let title of numberComparisonOperators" [selected]="title=='=' ? true : null" >{{title}}</option>
+            </select>
+            </div> 
+             <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'IsLaunched'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                 <option ></option>
+                 <option value="1">Yes</option>
+                 <option value="0">No</option>
+               </select>
+             </div>
+             
+              <!-- <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentFrom'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+               <option ></option>
+                 <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+                </select>
+             </div>
+             
+             <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentTo'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+               <option ></option>
+                 <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+             </select>
+             </div> -->
+              <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentFrom'">
+              	
+              	<select  *ngIf="DocumentFromSelectBox == 'single'" class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" >
+              		<option ></option>
+                  <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+                 </select>
+                 <p-multiSelect *ngIf="DocumentFromSelectBox == 'multi'"  maxSelectedLabels="4"  class="multiselect-ui "  [options]="populatedocumentfrom"  name="DocumentFrom" [(ngModel)]="selectedDocumentFrom" id="M-DocumentFrom" > 
+               
+               </p-multiSelect> 
+              </div>
+              
+              <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentTo'">
+              	<select   class="form-control adv_search_textbox"  *ngIf="DocumentToshowSelectBox == 'single'" name="{{documentSearchForm.getPropertyForIndex(i)}}" >
+              		<option ></option>
+                  <option *ngFor="let from of document_from" value="{{from.siteId}}">{{from.siteName}}</option>
+              </select>
+          <p-multiSelect *ngIf="DocumentToshowSelectBox == 'multi'"  maxSelectedLabels="4"  class="multiselect-ui " [options]="populatedocumentfrom"  name="DocumentTo" [(ngModel)]="selectedDocumentTo" id="M-DocumentTo" > 
+               
+               </p-multiSelect> 
+              </div>
+             <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DepartmentID'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                 <option ></option>
+                 <option *ngFor="let department of departmentsAdv" value="{{department.departmentCode}}">{{department.department}}</option>
+             </select>
+             </div>
+             
+            <!--  <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'CorrespondenceType'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                 <option ></option>
+                 <option value="1">Internal Incoming</option>
+                 <option value="2">Internal Outgoing</option>
+                 <option value="3">External Incoming</option>
+                 <option value="4">External Outgoing</option>
+             </select>
+             </div> -->
+              <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'CorrespondenceType'">
+              	<select *ngIf="CorespondenceshowSelectBox == 'single'" class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+              		<option ></option>
+              		<option value="1">Internal Incoming</option>
+              		<option value="2">Internal Outgoing</option>
+              		<option value="3">External Incoming</option>
+              		<option value="4">External Outgoing</option>
+              </select>
+              
+                <p-multiSelect *ngIf="CorespondenceshowSelectBox == 'multi'"  [options]="populateCorespondence" class="multiselect-ui" name="CorrespondenceType" [(ngModel)]="selectedCorespondence" id="M-CorrespondenceType"> 
+               
+               </p-multiSelect>
+               
+			   </div>
+             <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'Confidentiality'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                 <option ></option>
+                  <option value="2">Confidential</option>
+                   <option value="1">Non Confidential</option>
+                 
+             </select>
+             </div>
+             
+            <!-- <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentType'">
+               <select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+                 <option ></option>
+                  <option *ngFor="let docType of documentType" value="{{docType.id}}">{{docType.docType}}</option>
+                 
+             </select>
+             </div>-->
+           <!--   <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentType'">
+                
+                <select *ngIf="showSelectBox == 'single'" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="multiselect-ui form-control" >
+                    <option ></option>
+                    <option *ngFor="let docType of documentType" value="{{docType.id}}" title="{{docType.docType}}">{{docType.docType}}</option>
+                </select>        
+              
+              <select *ngIf="showSelectBox == 'multi'" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="multiselect-ui form-control" multiple="multiple" >
+                            <option ></option>
+                            <option *ngFor="let docType of documentType" value="{{docType.id}}" title="{{docType.docType}}">{{docType.docType}}</option>
+                        </select>
+              </div> -->
+              
+                  <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) == 'DocumentType'">
+            <!--  	<select class="form-control adv_search_textbox" name="{{documentSearchForm.getPropertyForIndex(i)}}">
+              		<option ></option>
+              		 <option *ngFor="let docType of documentType" value="{{docType.id}}">{{docType.docType}}</option>
+              		
+              </select>
+              -->
+                               <select *ngIf="showSelectBox == 'single'" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="multiselect-ui form-control" >
+                        <option ></option>
+                        <option *ngFor="let docType of documentType" value="{{docType.id}}" title="{{docType.docType}}">{{docType.docType}}</option>
+                    </select>        
+           
+               <p-multiSelect *ngIf="showSelectBox == 'multi'"  maxSelectedLabels="5" class="multiselect-ui " [options]="docTypeList"  name="DocumentType" [(ngModel)]="selected" id="M-DocumentType"> 
+               
+               </p-multiSelect>
+              </div>
+              <div class="col-sm-6 no-padding" *ngIf="documentSearchForm.getPropertyForIndex(i) != 'DocumentType' && documentSearchForm.getPropertyForIndex(i) != 'Confidentiality' && documentSearchForm.getPropertyForIndex(i) != 'CorrespondenceType' && documentSearchForm.getPropertyForIndex(i) != 'DepartmentID' && documentSearchForm.getPropertyForIndex(i) != 'IsLaunched' && documentSearchForm.getPropertyForIndex(i) != 'DocumentTo' && documentSearchForm.getPropertyForIndex(i) != 'DocumentFrom' " >
+               
+               <input type="text" (keypress)="isNumber($event)" id="astextbox" name="{{documentSearchForm.getPropertyForIndex(i)}}" class="form-control adv_search_textbox" id="doc_title" placeholder="{{advanceSearchApiValues[i].descriptiveText}}" style="height:22px;">
+             </div>
+           </div>
+           
+           
+         </div>
+         
+         <div class="form-group adv_search_fields">
+         <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" >Document Creator</label>
+ 
+           
+            <div class="col-sm-3 no-padding" >
+             <select id="documentCreatorCondition" class="form-control adv_search_dd"  
+                      name="selectedTitleSearchOperator">
+                 <option *ngFor="let title of textComparisonOperators" [attr.selected]="title=='is equal to' ? true : null" >{{title}}</option>
+             </select>
+           </div> 
+             <div class="col-sm-6 no-padding" >
+               <!-- <input type="text" id="documentCreatorValue" class="form-control adv_search_textbox" placeholder="Document Creator" style="height:22px;"> -->
+               <input auto-complete min-chars="2" [source]="creatorSearchUrl"  (valueChanged)="setCreatorName($event)" display-property-name="employeeName" name="userName" id="documentCreatorValue" class="form-control adv_search_textbox" placeholder="Document Creator" style="height:22px;">
+             </div>
+           </div>
+           
+            <div class="form-group adv_search_fields">
+         <label for="inputPassword" class="col-xs-2 control-label" style="font-weight: bold;" >Content Search</label>
+ 
+           
+            <div class="col-sm-3 no-padding" >
+             <select id="contentSearchCondition" class="form-control adv_search_dd"  name="selectedTitleSearchOperator">
+                 <option value="like" >like</option>
+             </select>
+           </div> 
+             <div class="col-sm-6 no-padding" >
+               <input type="text" id="contentSearch" class="form-control adv_search_textbox" placeholder="Content Search" style="height:22px;">
+             </div>
+           </div>
+           
+           
+         </div>
+         <div *ngIf="activeTab=='advanceSearch'" class="form-group">
+             <div class="col-sm-offset-4 col-sm-8 no-padding">
+               <span id ="advFilterMsg" style="display : none; color : red;"><b>Please provide at least one search criteria and try again</b></span>
+             </div>
+           <div class="col-sm-offset-4 col-sm-8 no-padding">
+           <button (click)="backpress(launchModal)"  id="backpress" class="btn btn-primary adv_search_btn">Back</button>
+             <button class="btn btn-primary adv_search_btn">Search</button>
+             <button type="button" id="cancel" class="btn btn-primary adv_search_btn" (click)="launchModal.close()">Cancel</button>
+           </div>
+         </div>
+       </form>
+     </div>
+      <!-- end of advance search tab -->
+           <!-- select documents tab -->
+           <div role="tabpanel" class="tab-pane fade  in no-margin" [class.height]="activeTab=='selectDocuments'" [class.active]="activeTab=='selectDocuments'" id="htab2">
+              <form class="form-horizontal" style="height: 85%">
+                <div class="documentsFound" style="height:440px">
+                  <h4>Search Results:{{totalCount}}</h4>
+                  <div id="loader" style="position: absolute;left: 50%;top: 50%;margin: 0;"></div>
+                   <p class="timer-text" id="timeelapsed">Elapsed time:{{ticks}}s</p>
+                  <ul style="height: 90%">
+                  <p class="animate-bottom" style="display:none;color:#737373" id="errortext">{{Errortext}}</p>
+                  
+                     <li class="email-header-item email-header-item--unread" style="background-color: #ccc;">
+                     
+                       <span class="docIcon" ></span>
+                       <span class="docIcon" ></span>
+                      <label class=" list-group-doc task_font" style="padding-left:50px;">
+                          <span class="documentTitle"> <b>Subject</b></span>
+                          <span class="name documents-list"><b>Document ID</b></span>
+                          <span class="documents-list-doc"><b>Reference Number</b></span>
+                      </label>
+                    </li>
+                  
+                  
+                    <li *ngFor="let doc of documentResults">
+                    <div style="vertical-align: middle;" >
+                      <input type="checkbox" (change)="selectDocLaunch($event,doc)">
+                      <!-- <span class="glyphicon glyphicon-file"></span> -->
+                       <span class="docIcon" [ngSwitch]="doc.mimeType"
+                            (click)="doc.mimeType == 'image/tif' || doc.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)">
+                            <i *ngSwitchCase="'image/png'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/gif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/jpeg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/jpe'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/bmp'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/jpg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/tif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/tiff'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'image/ico'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchDefault class="glyphicon glyphicon-file" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="fa fa-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/msword'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/doc'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/dot'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/docx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/dotm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/docm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/dotx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.template'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.ms-excel'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.template'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xls'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xlsx'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xla'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xlt'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xltm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xlam'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/xlsb'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.ms-powerpoint'" class="fa fa-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.presentation'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.template'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.slideshow'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/ppt'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/pot'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/pps'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/ppa'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/pptx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/potx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/ppsx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/ppam'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/pptm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/potm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/ppsm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/x-rar-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/octet-stream'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/x-zip-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/x-zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/x-gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/x-rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>                 
+                            <i *ngSwitchCase="'application/x-pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>
+                            <i *ngSwitchCase="'application/acrobat'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>                                                                      
+                     </span>
+                      <span class="docIcon" >
+                          <i *ngIf="doc.IsLaunched == 1" (click)="setAttachmentDocHist(doc)" data-toggle="modal" data-target="#infoLaunchModal" class="glyphicon glyphicon glyphicon-paperclip" ></i>
+                          <span *ngIf="doc.IsLaunched != 1">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                      </span>
+
+                       
+                      <label class=" list-group-doc task_font" >
+                          <a (click)="doc.mimeType == 'image/tif' || doc.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"  style="cursor:pointer;">
+                            <span class="documentTitle">{{doc.subject}}</span>
+                          </a>
+                          <span class="name documents-list">{{doc.documentID}}</span>
+                          <span class="documents-list-doc">{{doc.referenceNo}}</span>
+                      </label>
+       
+       
+                       <span class="date pull-right" *ngIf="doc.showOptions">
+                       <!-- <a style ="cursor:pointer;" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a>  -->
+                       <a style ="cursor:pointer;" (click)="viewDocument(viewer_url+'id='+doc.id+'&objectStoreName=DIMS&objectType=document')" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a>
+                       <a (click)="setAttachmentID(doc.id)" role="button" data-toggle="modal" data-target="#infoLaunchModal"><span class="glyphicon glyphicon-info-sign task_glyphicon" title="Document Properties"></span></a>
+                       <a [attr.href]="base_url+'/FilenetService/downloadDocument?docId='+doc.id+'&osName='+os_name"><span class="glyphicon glyphicon-save task_glyphicon" title="Download Document"></span></a>
+                      </span>
+                      
+       
+                      <!--<span class="date pull-right" *ngIf="doc.showOptions">
+                      <a style ="cursor:pointer;" (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.id+'&osName='+os_name)" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon"></span></a>
+                      <a (click)="setAttachmentID(doc.id)" role="button" data-toggle="modal" data-target="#infoModal"><span class="glyphicon glyphicon-info-sign task_glyphicon"></span></a>
+                      <a [attr.href]="base_url+'/FilenetService/downloadDocument?docId='+doc.documentID+'&osName='+os_name"><span class="glyphicon glyphicon-save task_glyphicon"></span></a>
+                      <a (click)="openDocumentActionPopup(doc.documentID, documentMailer)" role="button"><span class="glyphicon glyphicon-envelope task_glyphicon"></span></a> 
+                    </span>-->
+                    
+       
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </form>
+              <div class="row">
+                <div align="center">
+                  <table><tr><td>
+                      <button (click)="backpress(launchModal)"  id="backpress" class="btn btn-primary">Back</button> &nbsp;&nbsp;  
+                  </td><td>
+                      <button id="select_doc_button" type="button" style="display:none;" class="btn btn-primary" (click)="switchTab(launchModal,'launchWorkflow'); disable()">Select Document</button>       
+                  </td></tr></table>
+                </div>
+               </div>
+            </div>
+    
+     <!-- end of select documents tab -->
+      <!-- launch workflow tab -->
+       <div role="tabpanel" class="tab-pane fade  in no-margin" [class.active]="activeTab=='launchWorkflow'" id="htab2" style="height:95%;">
+          <div style="height:500px">
+                  <div class="left-sidebar" style=" overflow-y: auto;height:500px;">
+                              <div id="accordion-menu">
+                                        <ul>
+                                            <li >
+                                                  <accordion [closeOthers]="true">
+                             <accordion-group *ngIf="!showMyUserList" #userListThing id="test" heading="My User List" (onOpen)="getUserList()" (onClose)="disableToCC()" [isOpened]="true">
+                               <div class="scrollit_knpc_hierarchy_list">
+                                 <accordion>
+                                             <accordion-group *ngFor="let list of userList; let i=index;" heading="{{list.listName}}" (onOpen)="loadDeafultUserList(list)" [isOpened]="i==0?true:false">
+                                               
+                                                     <div>
+                                             <div class="open collapsed">
+                                             <div>
+                                             <table class="table table-striped">
+                                               <tbody>
+                                                 <tr>
+                                                   <td><input id = "userList" type="search" class="form-control input-sm" (keypress)="enterKeyPressed($event,list)" ></td>
+                                                   <td><button class="clear" (click)="loadDeafultUserList(list)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                   <td><button class="search" (click)= "filterUserList(list)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                                 </tr>
+                                               </tbody>
+                                             </table>
+                                             </div>
+                                               <div class ="scrollit">
+                                               <table class="table table-striped">
+                                                                         <thead>
+                                                                           <tr style="font-size: smaller;font-weight: bold;">
+                                                                             <td>Full Name</td>
+                                                                             <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'to')">To</td>
+                                                                             <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'cc')">CC</td>
+                                                                             <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'none')">None</td>
+                                                                           </tr>
+                                                                         </thead>
+                                                                         <tbody>
+                                                                             <tr *ngFor="let user of defaultUserList" style="font-size: smaller;font-weight: bold;">
+                                                                               <td>{{user.employeeName}}<br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                               <td><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin+ul" (change)="SelectedToRadio($event,user)"></td>
+                                                                               <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin+ul" (change)="SelectedCcRadio($event,user)"></td>
+                                                                               <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin+ul" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                             </tr>
+                                               </tbody>
+                                               </table>
+                                               
+                                               </div>
+                                               
+                                             </div>
+                                           </div>
+                                                 
+                                             </accordion-group>
+                                         </accordion>		
+                               </div>
+                             
+                             </accordion-group>
+                                                          <!-- <accordion-group id="test" *ngFor="let department of departments" heading="My User List" (onOpen)="loadDeafultUserList()" (onClose)="disableToCC()">
+                               <div>
+                                 <div class="open collapsed">
+                                 <div>
+                                 <table class="table table-striped">
+                                   <tbody>
+                                     <tr>
+                                       <td><input id = "userList" type="search" class="form-control input-sm" (keypress)="enterKeyPressed($event)" ></td>
+                                       <td><button class="clear" (click)="loadDeafultUserList()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                       <td><button class="search" (click)= "filterUserList()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                     </tr>
+                                   </tbody>
+                                 </table>
+                                 </div>
+                                   <div class ="scrollit">
+                                   <table class="table table-striped">
+                                                             <thead>
+                                                               <tr style="font-size: smaller;font-weight: bold;">
+                                                                 <td>Full Name</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'to')">To</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'cc')">CC</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(defaultUserList,'none')">None</td>
+                                                               </tr>
+                                                             </thead>
+                                                             <tbody>
+                                                                 <tr *ngFor="let user of defaultUserList" style="font-size: smaller;font-weight: bold;">
+                                                                   <td>{{user.employeeName}}<br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                   <td><input type="radio" [name]="user.employeeLogin+ul" (change)="SelectedToRadio($event,user)"></td>
+                                                                   <td><input type="radio" [name]="user.employeeLogin+ul" (change)="SelectedCcRadio($event,user)"></td>
+                                                                   <td><input type="radio" [name]="user.employeeLogin+ul" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                 </tr>
+                                   </tbody>
+                                   </table>
+                                   
+                                   </div>
+                                   
+                                 </div>
+                               </div>
+                              </accordion-group> -->
+                            
+                          
+                          <accordion-group #divisionsThing *ngFor="let division of divisions" heading="My Division" (onOpen)="loadUsersForDivision(division)" (onClose)="disableToCC()" [isOpened]="showMyUserList?true:false">
+                               <div>
+                                 <div class="open collapsed">
+                                   <div>
+                                     <table class="table table-striped">
+                                       <tbody>
+                                         <tr>
+                                           <td><input id="searchCriteria" class="form-control input-sm" (keypress)="searchDivision($event,division)" type="text"></td>
+                                                                            <td><button class="clear" (click)="loadUsersForDivision(division)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                                           <td><button class="search" (click)="getDivisionUserList(division)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                         </tr>
+                                         </tbody>
+                                     </table>
+                                   </div>					
+                                   <div class ="scrollit">
+                                   <table class="table table-striped">
+                                                             <thead>
+                                                               <tr style="font-size: smaller;font-weight: bold;">
+                                                                 <td>Full Name</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(division.users,'to')">To</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(division.users,'cc')">CC</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(division.users,'none')">None</td>
+                                                               </tr>
+                                                             </thead>
+                                                             <tbody>
+                                                                 <tr *ngFor="let user of division.users" style="font-size: smaller;font-weight: bold;">
+                                                                   <td >{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                 </tr>
+                                                                 <tr>
+                                   </tbody>
+                                   </table>
+                                   </div>
+                                 </div>
+                               </div>
+                              </accordion-group>
+                            <accordion-group #divisionsThing2 *ngFor="let department of departments" heading="My Department" (onOpen)="loadUsersForDepartment_1(department)" (onClose)="disableToCC()" [isOpened]="false">
+                               <div>
+                                 <div class="open collapsed">
+                                 <div>
+                                 <table class="table table-striped">
+                                   <tbody>
+                                     <tr>
+                                       <td><input id = "deptsearchCriteria" type="search" class="form-control input-sm" (keypress)="searchDepartment($event,department)"></td>
+                                       <td><button class="clear" (click)="loadUsersForDepartment_1(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                       <td><button class="search" (click)="getDepartmentUserList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                     </tr>
+                                   </tbody>
+                                 </table>
+                                 </div>
+                                   <div class ="scrollit">
+                                   <table class="table table-striped">
+                                                             <thead>
+                                                               <tr style="font-size: smaller;font-weight: bold;">
+                                                                 <td>Full Name</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(department.users,'to')">To</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(department.users,'cc')">CC</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(department.users,'none')">None</td>
+                                                               </tr>
+                                                             </thead>
+                                                             <tbody>
+                                                                 <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+                                                                   <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                 </tr>
+                                   </tbody>
+                                   </table>
+                                   
+                                   </div>
+                                   
+                                 </div>
+                               </div>
+                              </accordion-group>
+                              <div *ngIf ="checkJobTitle()">
+                              <!-- <div *ngIf ="checkUserAndDelegateJobTitle() == 'CRDEP' || checkUserAndDelegateJobTitle() == 'DCEO' ||checkUserAndDelegateJobTitle() == 'TL' ||checkUserAndDelegateJobTitle() == 'MGR' ||checkUserAndDelegateJobTitle() == 'DIMS' "> -->
+                              <accordion-group #crossDptThing id="crossdept" *ngFor="let department of departments"  heading="Cross Department" (onClose)="disableToCC()" (onOpen)="loadCrossDepartmentUsers()" [isOpened]='false'>
+                               <div>
+                                 <div class="open collapsed">
+                                 <div>
+                                 <table class="table table-striped">
+                                   <tbody>
+                                     <tr>
+                                       <td><input id = "crosssearchCriteria" type="search" class="form-control input-sm" (keypress)="searchCrossDepartment($event)"></td>
+                                       <td><button class="clear" (click)="loadCrossDepartmentUsers()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                       <td><button class="search" (click)="getCrossDepartmentUserList()" ><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                     </tr>
+                                   </tbody>
+                                 </table>
+                                 </div>
+                                   <div class ="scrollit">
+                                   <table class="table table-striped">
+                                                             <thead>
+                                                              <tr style="font-size: smaller;font-weight: bold;">
+                                                                 <td>Full Name</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(crossDepartment,'to')">To</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(crossDepartment,'cc')">CC</td>
+                                                                 <td style="cursor:pointer;" (click)="selectAll(crossDepartment,'none')">None</td>
+                                                               </tr>
+                                                             </thead>
+                                                             <tbody>
+                                                                 <tr *ngFor="let user of crossDepartment" style="font-size: smaller;font-weight: bold;">
+                                                                   <td>{{user.employeeName}}<br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                   <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                 </tr>
+                                   </tbody>
+                                   </table>
+                                   
+                                   </div>
+                                   
+                                 </div>
+                               </div>
+                              </accordion-group>
+                              <accordion-group #hierarchyThing id="hierarchy" heading="KNPC Hierarchy List" (onOpen)="loadKNPCHierarchy()" (onClose)="disableToCC()" [isOpened]="false">
+                               
+                                  <div>
+                                      <table class="table table-striped">
+                                        <tbody>
+                                          <tr>
+                                            <td><input id = "deptsearchCriteria2" type="search" class="form-control input-sm" (keypress)="searchKNPCDepartment_1($event)"></td>
+                                            <td><button class="clear" (click)="loadKNPCHierarchyUsersForDepartment_2()"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                            <td><button class="search" (click)="loadKNPCHierarchyUsersList_1()"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                          </tr>
+                                        </tbody>
+                                        
+                                            <tr>
+                                              <td>Full Name</td>
+                                              <td style="cursor:pointer;" (click)="globalSelectAll('to')">To</td>
+                                              <td style="cursor:pointer;" (click)="globalSelectAll('cc')">CC</td>
+                                              <td style="cursor:pointer;" (click)="globalSelectAll('none')">None</td>
+                                            </tr>
+                                          
+                                      </table>
+                                      </div>
+                                 
+                               
+                                <div class="scrollit_knpc_hierarchy_list">
+                                 <accordion>
+                                             <accordion-group *ngFor="let department of knpcHierarchy" heading="{{department.department}}" (onOpen)="loadKNPCHierarchyUsersForDepartment(department)" [isOpened]="false" (onClose)="disableToCC_1()">
+                                               
+                                                     <div>
+                                             <div class="open collapsed">
+                                             <div>
+                                             <table class="table table-striped">
+                                               <tbody>
+                                                 <tr>
+                                                   <td><input id = "deptsearchCriteria1" type="search" class="form-control input-sm" (keypress)="searchKNPCDepartment($event,department)"></td>
+                                                   <td><button class="clear" (click)="loadKNPCHierarchyUsersForDepartment(department)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                                                   <td><button class="search" (click)="loadKNPCHierarchyUsersList(department)"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button></td>
+                                                 </tr>
+                                               </tbody>
+                                             </table>
+                                             </div> 
+                                               <div class ="scrollit">
+                                               <table class="table table-striped">
+                                                                         <thead>
+                                                                           <tr style="font-size: smaller;font-weight: bold;">
+                                                                             <td>Full Name</td>
+                                                                             <td style="cursor:pointer;" (click)="selectAll(department.users,'to')">To</td>
+                                                                             <td style="cursor:pointer;" (click)="selectAll(department.users,'cc')">CC</td>
+                                                                             <td style="cursor:pointer;" (click)="selectAll(department.users,'none')">None</td>
+                                                                           </tr>
+                                                                         </thead>
+                                                                         <tbody>
+                                                                             <tr *ngFor="let user of department.users" style="font-size: smaller;font-weight: bold;">
+                                                                               <td>{{user.employeeName}} <br> <span style="font-size: smaller;font-style: italic;">{{user.employeeDesignation}}</span></td>
+                                                                               <td><input type="radio" [class]="user.employeeLogin+'to'" [name]="user.employeeLogin" (change)="SelectedToRadio($event,user)"></td>
+                                                                               <td><input type="radio" [class]="user.employeeLogin+'cc'" [name]="user.employeeLogin" (change)="SelectedCcRadio($event,user)"></td>
+                                                                               <td><input type="radio" [class]="user.employeeLogin+'none'" [name]="user.employeeLogin" (change)="SelectedNoneRadio($event,user)"></td>
+                                                                             </tr>
+                                               </tbody>
+                                               </table>
+                                               
+                                               </div>
+                                               
+                                             </div>
+                                           </div>
+                                                 
+                                             </accordion-group>
+                                         </accordion>		
+                               </div>
+                              </accordion-group>
+                              
+                              </div>
+                              
+                              
+                            </accordion>
+                                                         
+                                                       </li>
+                                                       
+                                                     </ul>
+                                               
+                                             </div>
+                                            
+                                           </div>
+                                         <!--   <div class="col-sm-6" style="float: right;"> -->
+                                        <div class="col-sm-6" style="float: right; margin-top: 10px; overflow-y: auto;height:500px;">
+                                           <div class="content">
+                                            <!--  <ul  class="nav nav-pills">
+                                               <li class="active"><a  href="#basic-information" data-toggle="tab">Basic Information</a></li>
+                                             </ul> -->
+                                             <div class="">
+                                               <div class="tab-pane active" id="basic-information">
+                                                 <div class="section-1">
+                                                   <div class="form-group">
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Subject:</label>
+                                                       <div class="col-sm-9">
+                                                         <input id="subject" maxlength="400" placeholder="(Max 400 characters)" type="text" [(ngModel)]="newTask.subject" class="form-control input-sm adv_search_textbox">
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                   <div class="modal-footer col-sm-12">
+                                                    <!--<span id ="subjectExceedMsg" style="display : none; color : red;"><b>Subject cannot exceed 200 characters. Please modify the subject and proceed. </b></span>-->
+                                                    <span id ="subjectMsg" style="display : none; color : red;"><b>Subject cannot be empty, please enter a subject and try again</b></span>
+                                                                   
+                                                                  </div>
+                                                   <div class="form-group" hidden>
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Name:</label>
+                                                       <div class="col-sm-9">
+                                                         <input type="text" [(ngModel)]="newTask.name" readonly class="form-control input-sm">
+                                                       </div>
+                                                     </div>
+                                                   </div> 
+                                                 </div>
+                                                 <div class="section-2">
+                                                   <div class="form-group"> 
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">To:</label>
+                                                       <div class="col-sm-9">
+                                                       <!-- <input id ="to" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addTosList($event)" min-chars="2" max-num-list="7" display-property-name="employeeName" [source]="userSearchUrl" name="tosList" /> -->
+                                                       <input id ="to" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addTosList($event)" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="tosList" />
+                                                       <span *ngFor="let list of wradio_to" class="selected_names_of_lunch">
+                                                            <span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,'wto')">x</a></span>
+                                                        </span>
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                   <div class="form-group">
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Cc:</label>
+                                                       <div class="col-sm-9">
+                                                       <!-- <input id="cc" type="text" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addCcsList($event)" min-chars="2" max-num-list="7" display-property-name="employeeName" [source]="userSearchUrl" name="tosList"> -->
+                                                       <input id="cc" type="text" class="form-control input-sm" auto-complete type="text" (ngModelChange)="addCcsList($event)" min-chars="2" display-property-name="employeeName" [source]="userSearchUrl" name="tosList">
+                                                       <span *ngFor="let list of wradio_cc" class="selected_names_of_lunch">
+                                       <span>{{ list }}<a class="remove_contact" (click)="removeFromList($event, list,'wcc')">x</a></span>
+                                 </span>
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                 </div>
+                                                 <div class="section-3">
+                                                   <div class="form-group">
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Instructions:</label>
+                                                       <div class="col-sm-9">
+                                                       <select id="instruction" class="form-control input-sm" [(ngModel)]="newTask.instruction" name="instruction">
+                                     <option *ngFor="let instruction of instructions" [ngValue]="newTask.instruction" [attr.selected]="instruction=='Active' ? true : null">{{instruction}}</option>
+                                   </select>
+                                                         <!-- <select class="form-control input-sm">
+                                                           <option>Action</option>
+                                                           <option>Another Action</option>
+                                                         </select> -->
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                   <div class="form-group">
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Comments:</label>
+                                                       <div class="col-sm-9">
+                                                         <textarea rows="3" maxlength="500" [(ngModel)]="newTask.comment" name="comment" ></textarea>
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                   <div class="form-group">
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Deadline:</label>
+                                                       <div class="col-sm-9">
+                                                         <my-date-picker name="created_date" [options]="myDatePickerOptionsDisabled" [(ngModel)]="newTask.deadline" placeholder="Deadline" required></my-date-picker>
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                   <div class="form-group">
+                                                      <div class="row">
+                                                        <label class="col-sm-3 control-label" style="font-weight: bold;">Priority:</label>
+                                                        <div class="col-sm-9">
+                                                        <select id="priority" class="form-control input-sm" [(ngModel)]="newTask.priority" name="priority">
+                                                          <option *ngFor="let priority of priorities" [ngValue]="newTask.priority" [attr.selected]="priority=='Normal' ? true : null">{{priority}}</option>
+                                                        </select>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                   <div class="form-group">
+                                                     <div class="row">
+                                                       <label class="col-sm-3 control-label" style="font-weight: bold;">Selected Documents:</label>
+                                                       <div class="col-sm-9">
+                                                         <div class="selected_tos_of_lunch fullWidth no-margin">
+                                                          <span *ngFor="let list of attachmentFiles" class="selected_names_of_lunch">
+                                         <span>{{ list.name }}<a class="remove_contact" (click)="removeSelectedDocsFromList($event, list,'attachment-List')">x</a></span>
+                                     </span>
+                                     <span *ngFor="let list of selected_docs" class="selected_names_of_lunch">
+                                       <span>{{ list.symbolicName }}<a class="remove_contact" (click)="removeSelectedDocsFromList($event, list,'Doc-List')">x</a></span>
+                                     </span>
+                                     
+                                     
+                                   </div>
+                                   <div>
+                                   <label class="custom-file-upload">
+                                       <input type="file" name="doneReply.DocumentClass" (click)=clearFile($event) (change)="fileChange($event)" id="choosedFile"/>
+                                       <i class="glyphicon glyphicon-paperclip paperclip"></i>
+                                     </label>
+                                     <a>
+                                       <span class="glyphicon glyphicon-tasks glyphicon_task" (click)="openLaunchPopupInLaunch(actionModal)">
+                                         </span>
+                                     </a>
+                                   </div>
+                                                       </div>
+                                                     </div>
+                                                   </div>
+                                                 </div>
+                                          </div>
+                                      </div>
+                                  </div>             
+                              </div>
+                                 <div class="col-sm-12" style="padding-top:10px;">
+                                  <button type="button" (click)="launchModal.close()" class="pull-right btn btn-primary md-close">Cancel
+                                 </button>
+                                  <button style="margin: 0 20px 0 10px" [disabled]="wradio_to==0 && wradio_cc==0" type="button" (click)="launch_existingdoc(launchModal)" data-dismiss="modal" class="pull-right btn btn-primary md-close" >Send
+                                 </button>
+                                  </div>
+                            </div>
+
+                                           
+
+                                           <!--<div class="modal-footer col-sm-12" >
+                           <span id ="subjectExceedMsg" style="display : none; color : red;"><b>Subject cannot exceed 200 characters. Please modify the subject and proceed. </b></span>
+                           <span id ="subjectMsg" style="display : none; color : red;"><b>Subject cannot be empty please enter a subject and try again</b></span>
+                                          
+                                         </div>-->
+                                       </div>
+    
+     <!-- end of tabpanel - user selection tab -->
+     <div role="tabpanel" class="tab-pane fade  in " [class.active]="activeTab=='userSelect'" id="htab2">
+       <user-list (sendSelectedUsers)="addUsersList($event.userlist,$event.listtype)"></user-list>
+     </div>
+     <!-- end of user selection tab -->
+   </div>
+ </modal-content>
+</modal>
+<!-- end of launch workflow popup -->
+
+<div id="helpUserManual" class="modal fade" role="dialog">
+ <div class="modal-dialog">
+
+   <!-- Modal content-->
+   <div class="modal-content">
+     <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal">&times;</button>
+       <h4 class="modal-title">Modal Header</h4>
+     </div>
+     <div class="modal-body">
+       <p>Some text in the modal.</p>
+     </div>
+     <div class="modal-footer">
+       <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+     </div>
+   </div>
+ </div>
+</div>
+
+<documentlaunch-info [currentTab]='currentTab' [selectedAttachmentID]="selectedAttachmentID" [selectedDocument]="selected_docs" (docAfterChange)="handleDocumentChange($event)"></documentlaunch-info>
+<!-- <document-mailer #documentMailer></document-mailer> -->

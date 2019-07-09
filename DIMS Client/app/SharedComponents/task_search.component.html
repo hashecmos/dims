@@ -1,0 +1,168 @@
+<div class="email-inbox-header">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="email-title">
+        <span class="icon mdi mdi-search"></span> Search Results <span *ngIf="searchType.length>1">({{searchType}})</span>
+      </div>
+    </div>
+    <div class="col-md-6 text-right">
+    
+      <button class="btn btn-space btn-primary" data-toggle="tooltip" title="Refresh" (click)="getSearchTasks()">
+        <i class="icon icon-left mdi mdi-refresh-sync"></i> Refresh
+      </button>
+      <settings-btn></settings-btn>
+    </div>
+  </div>
+</div>
+
+<div class="email-filters">
+
+<div *ngIf="task_items>0" class="email-filters-left">
+<multiple-selection-filter (notifyParent)="toggleSelectAll($event)" [is_all_selected]="is_all_selected"></multiple-selection-filter>
+</div>
+<div class="email-filters-right">
+            
+<pagination-template #p="paginationApi" (pageChange)="page = getPage($event)" class="pull-right pagination">
+  <span class="pagination-previous paginatioon_left_arrow" [class.disabled]="p.isFirstPage()" style="cursor:pointer">
+    <a *ngIf="!p.isFirstPage()" (click)="leftClicked(p)" >
+        <button type="button" class="btn btn-default">
+          <i class="mdi mdi-chevron-left"></i>
+        </button> 
+      </a>
+  </span>
+  <span *ngFor="let page of p.pages" [class.current]="p.getCurrent() === page.value">
+    <span *ngIf="p.getCurrent() === page.value">
+         <span class="pagination_current_page_number">
+           <font size="3"> Page <input style="width:30px" title="Go to page" (keypress)="onEnterKey($event,p)" type="text" id="currentPageSelected" value ="{{ page.label }}">  of {{totalPages}}  (total {{totalItemsCount}})</font>
+       </span>
+     </span>
+  </span>
+  <span class="pagination-next paginatioon_right_arrow" [class.disabled]="p.isLastPage()" style="cursor:pointer">
+       <a *ngIf="!p.isLastPage()" (click)="rightClicked(p)" >  
+         <button type="button" class="btn btn-default">
+           <i class="mdi mdi-chevron-right"></i>
+         </button>
+       </a>
+   </span>
+</pagination-template>
+               
+            </div>
+<!-- <div class="email-filters-right">
+    
+    <pagination-controls (pageChange)="page = pageChange($event)" class="pull-right pagination" previousLabel="" nextLabel="" maxSize="0"></pagination-controls>
+    <div class="btn-group email-pagination-nav">
+                    <button type="button" class="btn btn-default"><i class="mdi mdi-chevron-left"></i></button>
+                    <button type="button" class="btn btn-default"><i class="mdi mdi-chevron-right"></i></button>
+                </div>
+</div> -->    
+</div>
+
+<div class="scrollworkitem">
+<table class="table table-hover workflowSearchTable">
+<thead>
+  <tr style="background:#aaa">
+    <th></th>
+    <th>Subject</th>
+    <th *ngIf="searchType == 'Inbox' || searchType == 'Archive'">Sender Name</th>
+    <th *ngIf="searchType == 'Sent'">Recipient Name</th>
+    <th *ngIf="searchType == 'Inbox' || searchType == 'Archive'">Received Date</th>
+    <th *ngIf="searchType == 'Sent'">Sent Date</th>
+    <th>Deadline</th>
+  </tr>
+</thead>
+<!--<tbody>
+<ng-container *ngFor="let task of task_items">
+    <tr style="cursor:pointer" routerLink="/work-flow/inbox/task-details/{{task.workflowWorkItemID}}">
+      <td class="circle {{task.workflowWorkItemType}}-circle">●</td>
+      <td>{{task.workflowItemSubject}}</td>
+      <td>{{task.workflowSenderName}}</td>
+      <td>{{task.workflowItemReceivedOn}}</td>            
+      <td>{{task.workflowItemDeadline}}</td>
+    </tr>
+</ng-container>
+</tbody>-->
+<tbody>
+<ng-container *ngIf="searchType == 'Archive'">
+  <ng-container  *ngFor="let task of task_items| paginate: { itemsPerPage: perPage, currentPage: page, totalItems: totalItemsCount };">
+        <tr style="cursor:pointer" routerLink="/work-flow/archive/task-details/{{task.workflowWorkItemID}}">
+          <td class="circle {{task.workflowWorkItemType}}-circle">●</td>
+          <td style="max-width: 280px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title={{task.workflowItemSubject}}>{{task.workflowItemSubject}}</td>
+          <td>{{task.workflowSenderName}}</td>
+          <td>{{task.workflowItemReceivedOn}}</td>           
+          <td>{{task.workflowItemDeadline}}</td>
+        </tr>
+  </ng-container>
+</ng-container>
+<ng-container *ngIf="searchType == 'Inbox'">
+  <ng-container  *ngFor="let task of task_items| paginate: { itemsPerPage: perPage, currentPage: page, totalItems: totalItemsCount };">
+        <tr style="cursor:pointer" routerLink="/work-flow/inbox/task-details/{{task.workflowWorkItemID}}">
+          <td class="circle {{task.workflowWorkItemType}}-circle">●</td>
+              <td style="max-width: 280px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title={{task.workflowItemSubject}}>{{task.workflowItemSubject}}</td>
+          <td>{{task.workflowSenderName}}</td>
+          <td>{{task.workflowItemReceivedOn}}</td>           
+          <td>{{task.workflowItemDeadline}}</td>
+        </tr>
+  </ng-container>
+</ng-container>
+<ng-container *ngIf="searchType == 'Sent'">
+  <ng-container *ngFor="let task of task_items| paginate: { itemsPerPage: perPage, currentPage: page, totalItems: totalItemsCount };">
+
+        <tr style="cursor:pointer" data-toggle="modal" data-target="#sentitem-workitem-search" (click)="loadWorkitems(task.workflowWorkItemID)">
+          <td class="circle {{task.workflowWorkItemType}}-circle">●</td>
+              <td style="max-width: 280px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title={{task.workflowItemSubject}}>{{task.workflowItemSubject}}</td>
+          <td>{{task.workflowSenderName}}</td>
+          <td>{{task.workflowItemReceivedOn}}</td>           
+          <td>{{task.workflowItemDeadline}}</td>
+        </tr>
+           
+  </ng-container>
+</ng-container> 
+
+</tbody>
+</table>
+<div align="center" style="padding: 15px;font-size: 18px;" *ngIf="task_items.length<1">
+{{resultText}}
+</div>
+</div>
+<ng-container *ngIf="searchType == 'Sent'">
+    <div id="sentitem-workitem-search" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+     
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Sent Item Details</h4>
+            </div>
+            <div class="modal-body" style="height: 200px;overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead>
+                      <tr style="background:#aaa">
+                        <th></th>
+                        <!-- <th>Subject</th> -->
+                        <th>Recipient Name</th>
+                        <th>Sent Date</th>
+                        <th>Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let sentTask of sentitemsWorkitems">                           
+                          <tr style="cursor:pointer" data-dismiss="modal" routerLink="/work-flow/sent-item/task-details/{{sentTask.workflowWorkItemID}}">
+                            <td class="circle {{sentTask.workflowWorkItemType}}-circle">●</td>
+                            <!-- <td>{{sentTask.workflowItemSubject}}</td> -->
+                            <td>{{sentTask.workflowItemReceivedBy}}</td>
+                            <td>{{sentTask.workflowItemReceivedOn}}</td>           
+                            <td>{{sentTask.workflowItemDeadline}}</td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+     
+        </div>
+      </div>        
+</ng-container>

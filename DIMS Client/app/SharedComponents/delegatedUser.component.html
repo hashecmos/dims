@@ -1,0 +1,23 @@
+<!-- delegated users-->
+
+<!-- <div class="delegated_users" *ngFor="let user of delegatedUsers">
+	<a *ngIf="delegateForEmployeeLogin != user" class="btn btn-sm btn-block btn-default del_users" role="button" (click)="delegateForUser(user)">{{user}}</a>
+</div>
+
+<div class="delegated_users" *ngIf="delegateForEmployeeLogin != ''">
+	<a class="btn btn-sm btn-block btn-default del_users" role="button" (click)="unDelegateForUser()">{{current_user_name}}</a>
+</div> -->
+
+
+<div class="delegated_users" *ngFor="let user of delegatedUsers">
+	<div *ngIf="delegateForEmployeeLogin!= undefined">
+		<a *ngIf="delegateForEmployeeLogin.userFullName != user.userFullName" class="btn btn-sm btn-block btn-default del_users" role="button" (click)="delegateForUser(user)" title="{{user.userFullName}}">{{ user && user.userFullName ? user.userFullName.length > 31 ? user.userFullName.substring(0,30)+" ..."  : user.userFullName :''  }}</a>
+	</div>
+	<div *ngIf="delegateForEmployeeLogin == undefined">
+		<a *ngIf="delegateForEmployeeLogin != user" class="btn btn-sm btn-block btn-default del_users" role="button" (click)="delegateForUser(user)" title="{{user.userFullName}}">{{ user && user.userFullName ? user.userFullName.length > 31 ? user.userFullName.substring(0,30)+" ..."  : user.userFullName :''  }}</a>
+	</div>
+</div>
+
+<div class="delegated_users" *ngIf="delegateForEmployeeLogin != undefined && delegateForEmployeeLogin != '' ">
+	<a *ngIf="showUser == true" class="btn btn-sm btn-block btn-default del_users" role="button" (click)="unDelegateForUser()" title="{{current_user_name}}">{{ current_user_name ?  current_user_name.length > 31 ? current_user_name.substring(0,30)+" ..."  : current_user_name :'' }}</a>
+</div>

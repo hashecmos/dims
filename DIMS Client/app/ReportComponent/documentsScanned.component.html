@@ -1,0 +1,234 @@
+<header></header>
+<aside class="page-aside">
+  <div class="be-scroller ps-container ps-theme-default ps-active-y">
+    <div class="aside-content">
+			<report-side-bar></report-side-bar>
+    </div>
+  </div>
+</aside>
+
+<div class="be-content be-no-padding">
+  <div class="main-content container-fluid ReportsContainer">
+    <div class="col-sm-12" id="reportSearchForm">
+      <form class="form" role="form" (ngSubmit)="submitReport($event)">
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="form-group">
+              <label for="inputType" class="control-label col-sm-4">Department</label>
+              <div class="input-group col-sm-8">
+               <select id="departmentId" class="form-control adv_search_dd"  name="selectedTitleSearchOperator" (change)="getDepartmentCode()">
+                	
+                	 <option class="dropdown-options" value="{{current_user.employeeDepartment.departmentCode}}" >{{current_user.employeeDepartment.department}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-5">
+            <div class="form-group">
+               <label for="inputType" class="col-sm-4 control-label">Division</label>
+                <div class="input-group col-sm-8">
+                
+                <select id="division" class="form-control adv_search_dd" name="division" (change)="getDeptUser()">
+										<!-- <option *ngIf="(this.delegatedUserDetails != undefined && this.delegatedUserDetails.employeeJobTitle =='MGR') || (this.delegatedUserDetails != undefined && this.delegatedUserDetails.employeeJobTitle =='DCEO') || current_user.employeeJobTitle =='MGR' || current_user.employeeJobTitle =='DCEO'" value="-1" selected>All Division</option> -->
+										<option *ngIf=" current_user.employeeJobTitle =='MGR' || current_user.employeeJobTitle =='CEO'" value="-1" selected>All Division</option>
+                  	<option *ngIf=" current_user.employeeJobTitle =='TL'" value="{{current_user.employeeDivision.empDivisionCode}}" selected>{{current_user.employeeDivision.empDivision}}</option>
+                  	<!-- <option  *ngFor="let div of divisions" value="{{div.empDivisionCode}}" >{{div.empDivision}}</option> -->
+                </select>
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="form-group">
+              <label for="inputType" class="control-label col-sm-4">Pool Users <span style="color:red;">*</span></label>
+              <div class="input-group col-sm-8">
+                <p-multiSelect [options]="recepient" [(ngModel)]="selectedrecepients" (onChange)="hideDiv()" name="selectedrecepients" defaultLabel="-- Select User --"></p-multiSelect>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-5">
+            <div class="form-group">
+              
+            </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-5">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">From Date <span style="color:red;">*</span></label>
+                 <div class="input-group col-sm-8">
+                   <my-date-picker name="workflowStatistics.fromDate" (inputFieldChanged)="disableToDate($event)" [options]="myDatePickerOptions" [(ngModel)]="workflowStatistics.fromDate"></my-date-picker>
+                   <!-- <input type="checkbox">Null -->
+                 </div>
+              </div>
+            </div>
+             <div class="col-sm-5">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">To Date <span style="color:red;">*</span></label>
+                 <div class="input-group col-sm-8">
+                  <my-date-picker name="workflowStatistics.toDate" [options]="myDatePickerDisableOptions" [(ngModel)]="workflowStatistics.toDate"></my-date-picker>
+                  <!-- <input type="checkbox">Null -->
+                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <button class="btn btn-success" type="button" (click)="getScannedDocumentReport()" [disabled]="workflowStatistics.fromDate == undefined ||workflowStatistics.fromDate == '' || workflowStatistics.toDate == undefined || workflowStatistics.toDate == '' || selectedrecepients == undefined || selectedrecepients.length == 0">View Report</button>
+          </div>
+    </form>
+<div id="displayLoader" class="loading" style="display:none;">Loading&#8230;</div>
+  </div>
+   
+<div *ngIf="noResult" class="reportDisplay col-sm-12 no-padding">
+No Result....
+</div>
+ <div *ngIf="showReport" class="reportDisplay col-sm-12 no-padding"  style="height: 59%;">
+   <div class="col-sm-12" id="reportBar" >
+      <span class="glyphicon glyphicon-step-backward submitReport_backward"></span>
+      <span class="glyphicon glyphicon-triangle-left triangle_left"></span>
+      <input type="text"> of 1
+      <span class="glyphicon glyphicon-triangle-right triangle_right"></span>
+      <span class="glyphicon glyphicon-step-forward step_forward"></span>
+      <select class="" id="options">
+        <option value="volvo">Select a Format</option>
+        <option value="pdf">PDF</option>
+        <option value="excel">Excel</option>
+      </select> 
+      <span class="report_export" style="cursor:pointer;" (click)="exportData()" ><b>Export</b></span>
+    </div>
+    <div class="col-sm-10" id="printSectionId"  style="height: 95%;">
+      <div class="col-sm-5">
+          <div class="navbar-header col-md-2 col-sm-3 ">
+            <a class="navbar-brand dims_brand"><img src="./images/logo-new.png" alt=""></a>
+          </div>
+        </div>
+        <br><br><br><br>
+        <hr style="color:black;background-color: black; height:1px;" />
+        <div class="panel-body">
+              <div class="col-sm-6">
+                <b style="font-size: 20px;">Information Technology</b><br> <b>Total Docs Added : {{totalCount}}</b>
+              </div>
+              <br><br><br><br>
+              <div style="padding-left: 10em;font-weight: bold;font-style: italic;color: grey;"> Through the period:  <div *ngIf ="workflowStatistics.fromDate != undefined && workflowStatistics.toDate != undefined" >{{fromDate}}</div>  To <div *ngIf ="workflowStatistics.fromDate != undefined && workflowStatistics.toDate != undefined">{{toDate}}</div></div>
+              <br>
+              <div style="width : 100%;">
+	              	<table style ="padding-left: 10em;width:100%;">
+		              	<tr><td style="font-size: 36px;color: red; border-right: solid 3px gray;text-align: right;">{{totalCount}}</td><td style="font-size: 36px; color: grey;">&nbsp;&nbsp;{{divCodeUI}}</td></tr>
+		              	<tr><td style="text-align: right;font-style: italic;">Docs</td></tr>
+	              	</table>
+	              	<div class="report-accordion">
+	       				<div id="reports-accordion-menu">
+	                         <ul>
+	                           	<li> 	
+	            					<accordion [closeOthers]="true">
+	            					<div *ngFor="let rep of tmpSelRecep">
+	            						<div *ngFor="let recep of tmpSelRecep; let index = i">
+											<accordion-group *ngIf="rep.value == recep.value">
+											<accordion-heading>
+									            <accordion-toggle><div style="color : white;margin-left: 15px;">{{rep.label}}<div style="color : white;margin-right: 15px; float: right;">{{rep.count}}</div></div>
+									             </accordion-toggle>
+									        </accordion-heading>
+												<table width="100%" class="table table-striped">
+													<tr style="font-weight: bold">
+																<td style="font-weight: bold">
+																	Date Created
+																</td>
+																<!-- <td style="font-weight: bold">
+																	Creator
+																</td> -->
+																<td style="font-weight: bold">
+																	Launched
+																</td>
+																<td style="font-weight: bold">
+																	Ref No
+																</td>
+																<td style="font-weight: bold">
+																	Subject
+																</td>
+																<td style="font-weight: bold">
+																	ID
+																</td>
+																<td style="font-weight: bold">
+																	Size
+																</td>
+																<td style="font-weight: bold">
+																	Document Type
+																</td>
+																<td style="font-weight: bold">
+																	Correspondence Type
+																</td>
+																<td style="font-weight: bold">
+																	Document Date
+																</td>
+																<td style="font-weight: bold">
+																	Date Received
+																</td>
+																<td style="font-weight: bold">
+																	Document From
+																</td>
+																
+																<td style="font-weight: bold">
+																	Confidential
+																</td>
+																
+													</tr>
+													<tr *ngFor= "let docScan of documentScanned ">
+														<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.dateCreated}}
+																</td>
+																<!-- <td *ngIf="docScan.Creator == recepient">
+																	{{docScan.Creator}}
+																</td> -->
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.IsLaunched}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.ReferenceNo}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.DocumentTitle}}  
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.DocumentID}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.ContentSize}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.DocumentType}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.CorrespondenceType}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.DocumentDate}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.DateReceived}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.DocumentFrom}}
+																</td>
+																<td *ngIf="docScan.Creator == recep.value">
+																	{{docScan.Confidentiality}}
+																</td>
+																
+																
+													</tr>
+												</table>
+											</accordion-group>
+										</div></div>
+					 				</accordion>
+	              				</li>
+	              			</ul>
+	              		</div>
+              		</div>
+              </div>
+              
+    	</div>
+  </div>
+</div>
+</div>

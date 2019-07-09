@@ -1,0 +1,45 @@
+<!-- Comment out this entire file for KNPC build -->
+ 
+<nav [ngClass]="{'delegationMode': delegateForEmployeeLogin}" class="navbar navbar-default navbar-fixed-top be-top-header">
+<div class="container-fluid">
+   <div class="navbar-header"><a href="#" class="navbar-brand"></a></div>
+</div>
+</nav>
+
+<div class="container margin_on_top">
+  <div id="loginbox" class="mainbox auth-login col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="panel-title login_title">Log In</div>
+      </div>
+
+      <div class="panel-body">
+        <div class="col-md-12"></div>
+        <div id="login-alert" *ngIf="errorMsg" class="alert alert-danger col-sm-12">Invalid Email or Password</div>
+
+        <form class="form" role="form" #courseForm="ngForm" (ngSubmit)="login()">
+
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+              <input class="form-control" [(ngModel)]="user.username" type="text" name="text"  placeholder="username">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+              <input [(ngModel)]="user.password" type="password" class="form-control" name="password" placeholder="password">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="controls">
+              <button class="btn btn-space btn-primary" type="submit">Login</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,23 @@
+<header></header>
+
+<aside class="page-aside">
+     <div class="be-scroller ps-container ps-theme-default ps-active-y"> 
+    <!-- <div class="be-scroller ps-container ps-theme-default ps-active-y"> -->
+      <div class="aside-content" style="height:100%">        
+      <module-selection></module-selection>
+      <folder-list (onNodeChange)="setSelectedNode($event)" (onNodeCollapse)="collapseNode($event)" [defaultSelected]="currentFolderId" [nodes]='nodes' (onNodeSelected)="getContaineesOnNodeSelected($event)"></folder-list>
+    </div>
+  </div>
+</aside>
+
+   <div class="be-content be-no-padding"> 
+    <div class="main-content container-fluid">
+     
+      
+        <documents [selectedNode]='selectNode'  [nodes]='nodes' (onRefresh)="loadFolderContainees()" [containees]='containees'></documents>
+        
+         <div id="displayLoader" class="loading" style="display:none;">Loading&#8230;</div>
+	    
+    </div>
+    
+    </div>

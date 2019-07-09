@@ -1,0 +1,262 @@
+<div class="email-inbox-header">
+    <div class="row"> 
+ 
+        <div class="col-md-12 text-left">
+            <button (click)="backClicked()" class="btn btn-space btn-primary"><i class="icon icon-left mdi mdi-arrow-left"></i>
+                Back
+            </button>
+            <button class="btn btn-space btn-primary dropdown-toggle action_btn" data-toggle="modal" data-target="#wf_history" (click)= "getWorkflowHistroyByDept()"><i class="icon icon-left mdi mdi-time"></i>
+                History
+            </button>
+        </div>
+    </div>
+</div>    
+<div class="email-head">
+    <div class="email-head-subject">
+        <div class="row">
+        <div class="col-md-9">
+            <div class="title">
+              <table>
+                <tr>
+                  <td valign="top">
+                      <a class="active">
+                          <span class="circle {{currentTask.workflowWorkItemType}}-circle">●</span>
+                      </a> 
+                  </td>
+                  <td valign="middle">
+                      <span style="word-wrap: break-word;">{{currentTask.workflowItemSubject}}</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+        </div>
+        <div class="col-md-2" style="float: right">
+            <div class="title">
+            Instructions
+
+            </div>
+            <p>{{currentTask.workflowInstruction}}</p>
+        </div>
+            </div>
+    </div>
+<div class="email-head-sender">
+          <div class="date" style="color:#ea4335;">
+            <span class="icon mdi mdi-time" style="margin-right:10px;color:#000"></span>Deadline
+              Date: {{currentTask.workflowItemDeadline}}
+          </div>
+          <div class="sender">From:
+          <span style="margin-left:10px;">{{currentTask.workflowSenderName}}</span>
+              <div style="display:inline-block">
+                <popover-content class="to_pop_over_dropdown" #myPopover title="More Details" placement="bottom" [closeOnClickOutside]="true">
+                  <tbody>
+                    <tr>
+                      <td class='to gG'  colspan='2'>To:</td><td colspan='2' class='gL'>
+                          <a *ngFor="let task of currentTask.workflowRecipientList;" class='recipient'>
+                            <b *ngIf="task.workflowWorkItemType=='to' || task.workflowWorkItemType=='Reply'"> {{task.workflowRecipientName}}<br/></b>
+                          </a>
+                      </td>
+                    </tr>
+                    <tr colspan='4'></tr>
+                    <tr>
+                      <td class='to gG'  colspan='2'>CC:</td>
+                      <td colspan='2' class='gL'>
+                        <a *ngFor="let task of currentTask.workflowRecipientList" class='recipient'>
+                          <b *ngIf= "task.workflowWorkItemType=='cc'"> {{task.workflowRecipientName}}<br/></b>
+                        </a>
+                      </td>
+                    </tr>
+                    <tr colspan='4'></tr>
+                  </tbody>
+                </popover-content>
+                <button [popover]="myPopover" class="icon toggle-dropdown btn btn-default"><i class="mdi mdi-caret-down"></i></button>
+              </div>
+          </div>
+      </div>
+
+    <div class="email-body" style="padding: 0px;">
+        <div class="panel panel-default">
+            <div class="email-attachments">
+                <div  style="font-weight:500;padding-bottom:8px;padding-left:10px;"><b>Attachments</b></div>
+                <div style=" height : 250px ; overflow : auto;">
+                  <ul class="attachments">
+                      <li class="attachment" *ngFor="let doc of currentTask.workflowAttachments; let index = index" >
+                        <p *ngIf="doc.fileName !='Document not available'" role="button" (click) ="viewDocument(base_url+'/FilenetService/viewDocument?docId='+doc.workflowDocumentId+'&osName='+os_name)" target="_blank" class="icon fa {{currentTask.mimeTypeIcon(index)}}" aria-hidden="true"></p> 
+                        <p *ngIf="doc.fileName !='Document not available'" title="{{doc.fileName}}">{{doc.fileName}}</p>
+                        <p *ngIf="doc.documentId" title="{{doc.documentId}}">ID : [{{doc.documentId}}]</p>
+                        <ul class="attachment-actions"  *ngIf="doc.fileName !='Document not available'">
+                          <li> <i role="button" class="fa fa-eye" aria-hidden="true" (click) ="viewDocument(viewer_url+'id='+doc.workflowDocumentId+'&objectStoreName=DIMS&objectType=document')" target="_blank" title="View Document"></i></li>
+                          <li> <i role="button" (click)="downloadDocument(base_url+'/FilenetService/downloadDocument?docId='+doc.workflowDocumentId+'&osName='+os_name)" class="fa fa-download" aria-hidden="true" title="Download Document"></i></li>
+                          <li> <i (click)="setAttachmentDOC(doc)" role="button" data-toggle="modal" data-target="#infoModal" class="fa fa-info-circle" aria-hidden="true" title="Document Properties"></i></li>
+                          <li> <i (click)="sendMail(doc.workflowDocumentId, doc.fileName)" role="button" class="fa fa-share" aria-hidden="true" title="Send By Outlook"></i></li> <!-- AMZ change -->
+                          <li> <i (click)="openDocumentActionPopup(doc, documentMailer)" role="button" class="fa fa-envelope-open-o" aria-hidden="true" title="Send By Webmail"></i></li>
+                        </ul>
+                      </li>
+                  </ul>
+                </div> 
+            </div>
+  
+
+            <actions-btn (notifyParentToComplete)="completeTask($event)" [is_archive_available]="is_archive_available" [selectedTasks]="selectedTasks" [is_for_buttons]=true [is_cc_item]="is_cc_item" [is_done_by_sub_item]="is_done_by_sub_item" [is_complete_available] = "is_complete_available" [is_launch_available]="is_launch_available" [action_list]="actionList"></actions-btn>
+            
+            <div class="marginleft25" *ngIf="currentTask.workflowItemActionComment == ''">
+              <span><strong class="strong-class">Comments: </strong></span>There are no comments
+            </div>
+            <div class="marginleft25" *ngIf="currentTask.workflowItemActionComment != ''">
+              
+              <div style=" height : 300px ; overflow : auto;">
+                  <span><strong class="strong-class">Comments: </strong></span>
+                  {{currentTask.workflowItemActionComment}}
+              </div>
+            </div>
+  </div>
+</div>
+
+
+
+<div id="wf_history" class="modal fade" role="dialog">
+  <div class="modal-dialog info-doc-modal colored-header colored-header-primary">
+    <div class="modal-content">
+       <div class="modal-header">
+		  	<button class="close" data-dismiss="modal" type="button" aria-label="Close"><span aria-hidden="true" class="mdi mdi-close"></span></button>
+			    <modal-header>
+                   <h3 class="modal-title">History</h3>
+                   <div align="right" style="padding-top:2px;padding-bottom:2px;">
+                      <div class="btn-group" >
+        
+                          <button data-toggle="dropdown" type="button" class="btn btn-default dropdown-toggle" aria-expanded="true">
+                            <i class="fa fa-filter" aria-hidden="true"></i>
+                              Filter
+                            <span class="caret"></span></button>
+                            <ul role="menu" class="dropdown-menu">
+                              <li class="dropdown-submenu" (click)="fetchHistory()" style="cursor:pointer;color: black; ">
+                                Show All History
+                              </li>
+                              <li class="dropdown-submenu" (click)="getWorkflowHistroyByDept()" style="cursor:pointer;color: black; ">
+                                User Department
+                              </li>
+                            </ul>
+                      </div>
+                  </div>
+			  	</modal-header>
+	    </div>
+      <div class="modal-body info-modal" class ="scrollHistory">
+        <table class="table  panel-group minimize-padding" id="accordion">
+          <thead class="info-doc-thead panel panel-default">
+            <tr class="inboxHeader">
+              <td>#</td>
+              <td width="1%"></td>
+              <td>Sender</td>
+              <td>Recipient</td>
+              <td>Status</td>
+              <td>Type</td>
+              <td>Action By</td>
+            </tr>
+          </thead>
+          <tbody>
+            <template ngFor [ngForOf]="historyDetails" let-history let-index=index>
+              <tr>
+                <td>
+                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse">
+                    {{index+1}}
+                  </a>
+                </td>
+                <td style="cursor:pointer;">
+                    <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse" [ngStyle]="{ 'display': history.workItemActionComment == 'undefined' ?'none': history.workItemActionComment.trim().length >0?'': 'none'}">
+                  	<div [ngClass]="(index >=0 && index<=5) ?'tooltipCommentBottom':'tooltipComment'" >
+                        <i class="fa fa-comment" style="color:#928df8;" aria-hidden="true" ></i>
+                        <span [ngClass]="(index >=0 && index<=5) ?'tooltiptextCommentBottom':'tooltiptextComment'" >
+                        <table>
+                        <tr>
+                            <td valign="top" class="titleOne">{{history.senderName}} Comment :</td>
+                          </tr>
+                          <tr>
+                              <td valign="top" style="font-weight: normal;">
+                                  <div style="padding-left:5px;">
+                                      {{history.workItemActionComment == 'undefined' ?'':history.workItemActionComment}}
+                                  </div>
+                                </td>
+                          </tr>
+                        </table>
+                        </span>
+                      </div>
+                    </a>
+                </td>
+                <td>
+                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse">
+                    {{history.senderName}}
+                  </a>
+                </td>
+                <td>
+                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse">
+                    {{history.recipientName}}
+                  </a>
+                </td>
+                <td>
+                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse">
+                    {{history.workItemStatus}}
+                  </a>
+                </td>
+                <td>
+                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse">
+                    {{history.workItemType}}
+                  </a>
+                </td>
+                <td>
+                  <a href="#collapse{{history.workflowId}}{{index}}" data-toggle="collapse">
+                    {{history.workflowActionUser}}
+                  </a>
+                </td>
+              </tr>
+              <tr id="collapse{{history.workflowId}}{{index}}" class="panel-collapse collapse">
+                <td colspan="6" class="no-padding">
+                  <table class="table table-bordered no-margin minimize-padding">
+                    <tbody>
+                      <tr>
+                        <td><b>Instructions:</b></td>
+                        <td>{{history.workflowInstruction}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Last Action Date:</b></td>
+                        <td>{{history.workflowActionTime}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Last Action By:</b></td>
+                        <td>{{history.workflowActionUser}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Recipient Received Date:</b></td>
+                        <td>{{history.workItemReceivedOn}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Workflow Deadline:</b></td>
+                        <td>{{history.workItemDeadLine}}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Comments:</b></td>
+                        <td *ngIf="history.workItemActionComment !='undefined'">{{history.workItemActionComment}}</td>
+                        <td *ngIf="history.workItemActionComment =='undefined'">There is no comment</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary reply_btn" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- document property popup -->
+<document-info [currentTab]='currentTab' [selectedAttachmentID]="selectedAttachmentID" [selectedDocument]="selectedDocument" (docAfterChange)="handleDocumentChange($event)"></document-info>
+
+<!-- document link popup -->
+<document-link #documentLink></document-link>
+
+<!-- document mailer popup -->
+<document-mailer #documentMailer></document-mailer>
+

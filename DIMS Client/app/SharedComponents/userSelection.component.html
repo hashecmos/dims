@@ -1,0 +1,37 @@
+<div *ngIf="(selectedToList.length != 0)">
+  TO : <span *ngFor="let list of selectedToList" class="selected_names">
+   <span>{{ list }}<span  class="remove_contact"  (click)="removeFromList($event,list,'To')">x</span></span>
+  </span>
+</div>
+<div *ngIf="(selectedCcList.length != 0)" class="mrgn_top">
+  CC : <span *ngFor="let list of selectedCcList" class="selected_names">
+  <span>{{ list }}<span class="remove_contact" (click)="removeFromList($event,list,'Cc')">x</span></span>
+  </span>
+</div>
+<span *ngIf="(selectedToList.length != 0) || (selectedCcList.length != 0)">
+<button (click)="clearAllRadio($event)" class="btn btn-default clear-btn" type="button">Clear</button>
+</span>
+<accordion [showArrows]="true" [closeOthers]="true" [expandAll]="false">
+  <accordion-group *ngFor="let list of userLists" (onOpen)="fetchUsersOfList(list.listId)">
+    <accordion-heading>
+      {{list.listName}}
+    </accordion-heading>
+    <div class="container to_cc">
+      <table class="table">
+        <tbody>
+          <tr *ngFor="let user of allUsers">
+            <td>{{user.employeeName}}</td>
+            <td>{{user.employeeDesignation}}</td>
+            <td *ngIf="currentTask != 'cc'">TO
+              <input type="radio" name="{{user.employeeLogin}}_to_cc" (change)="selectedTo($event,user.employeeLogin)" [checked]="selectedToList.indexOf(user.employeeLogin) == 0" class="clear">
+            </td>
+            <td *ngIf="action !='Reassign'">CC
+              <input type="radio" name="{{user.employeeLogin}}_to_cc" (change)="selectedCc($event,user.employeeLogin)" [checked]="selectedCcList.indexOf(user.employeeLogin) == 0" class="clear">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </accordion-group>
+</accordion>
+<button (click)="emitCloseEvent()" class="btn btn-primary btn-block accordion-btn" type="button">Done</button>

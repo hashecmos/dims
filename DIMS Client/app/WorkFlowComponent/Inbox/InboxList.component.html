@@ -1,0 +1,179 @@
+<div class="email-inbox-header">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="email-title">
+            <span class="icon mdi mdi-inbox"></span> Inbox <span
+                                class="new-messages"></span>
+          </div>
+        </div>
+        <div class="col-md-6 text-right">
+        	<settings-btn></settings-btn>
+          <button class="btn btn-space btn-primary" data-toggle="tooltip" title="Refresh" (click)="refresh()">
+            <i class="icon icon-left mdi mdi-refresh-sync"></i> Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="email-filters">
+        <div class="email-filters-left">
+            <multiple-selection-filter (notifyParent)="toggleSelectAll($event)" [is_all_selected]="is_all_selected"></multiple-selection-filter>
+            <actions-btn (notifyParentToComplete)="completeTask($event)" (launch)="refresh()" *ngIf="is_tasks_of_same_status" [is_archive_available]="is_archive_available" [selectedTasks]="selectedtasklist" [is_cc_item]="is_cc_item" [is_done_by_sub_item]="is_done_by_sub_item" [is_done_available]="is_done_available" [is_complete_available]="is_complete_available" [is_launch_available]="is_launch_available" [action_list]="actionList"></actions-btn>
+            <all-btn (notifyParenttofilter)="applyFilter($event)"></all-btn>
+            <new-folder-btn [folderFor]="'inbox'"></new-folder-btn>
+            <sort-btn (notifyParenttofilter)="applyFilter($event)"></sort-btn>
+        </div>
+        <div class="email-filters-right">
+     	<pagination-template #p="paginationApi" (onload)="test()" (pageChange)="page = getPage($event)" class="pull-right pagination">
+				<span class="pagination-previous paginatioon_left_arrow" [class.disabled]="p.isFirstPage()" style="cursor:pointer">
+					<a *ngIf="!p.isFirstPage()" (click)="leftClicked(p)" >
+  						<button type="button" class="btn btn-default">
+  							<i class="mdi mdi-chevron-left"></i>
+  						</button> 
+  					</a>
+				</span>
+				<span *ngFor="let page of p.pages" [class.current]="p.getCurrent() === page.value">
+					<span *ngIf="p.getCurrent() === page.value">
+   						<span class="pagination_current_page_number">
+   							<font size="3"> Page <input style="width:30px" title="Go to page" (keypress)="onEnterKey($event,p)" type="text" id="currentPageSelected" value ="{{ page.label }}">  of {{totalPages}}  (total {{totalItemsCount}})</font>
+ 						</span>
+ 					</span>
+				</span>
+				<span class="pagination-next paginatioon_right_arrow" [class.disabled]="p.isLastPage()" style="cursor:pointer">
+   					<a *ngIf="!p.isLastPage()" (click)="rightClicked(p)" >  
+   						<button type="button" class="btn btn-default">
+   							<i class="mdi mdi-chevron-right"></i>
+   						</button>
+   					</a>
+ 				</span>
+			</pagination-template>
+    	</div>
+    </div>
+	
+
+  <div class="scrollworkitem" id="scrollWI">
+		<!-- <div class="ajax-loader" id="loadingSpinner" style="display:block;">
+				<div class="loaderWI" ></div>
+				<p>Loading...</p>
+		</div>
+		<div id="workitemsListIsEmpty" style="display:none;">
+				<table cellpadding="0" cellspacing="0" style="width:100%;" >
+						<thead > 
+						  <tr class="inboxHeader"> 
+								  <td width="2%"></td>
+									<td width="2%"></td>
+									<td width="2%"></td>
+								  <td width="1%"></td>
+								  <td width="1%"></td>
+								  <td colspan="1" *ngFor ="let colPref of colPreference" class="email-list-detail" >
+									  <span style="width:30%;" *ngIf="(colPref.itemType == 'inboxName' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSubject')">Subject</span>
+									  <span style="width:15%;" *ngIf="(colPref.itemType == 'inboxSender' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowSenderName')" >Sender Name</span>
+									  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxStatus' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowInstruction')" >Instruction</span>
+									  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxDeadline' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemDeadline')">Deadline</span>
+									  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxReceivedOn' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceivedOn')"  >Received On</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxSender Department' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSenderDepartment')" >Sender Department</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Departmentr' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDepartment')" >Receiver Department</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxSender Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSenderDiv')" >Sender Division</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDiv')" >Receiver Division</span>
+								  </td>
+						</tr>
+							</thead>
+							</table>
+							<div class="ajax-loader" id="loadingSpinner">
+									<span class="animate-bottom" id="errortext_search">No Records Found</span>
+							</div>
+		</div> -->
+		
+		<!-- <div id="workitemsList" style="display:none;"> -->
+		<div id="workitemsList">
+				<table   cellpadding="0" cellspacing="0" style="width:100%;" >
+						<thead >
+						  <tr class="inboxHeader"> 
+									<td></td>
+									<!-- <td></td> -->
+									<td width="1%"></td>
+									<td width="1%"></td>
+								  <td></td>
+								  <td></td>
+								  <td colspan="1" *ngFor ="let colPref of colPreference" class="email-list-detail" >
+									  <span style="width:30%;" *ngIf="(colPref.itemType == 'inboxName' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSubject')">Subject</span>
+									  <span style="width:15%;" *ngIf="(colPref.itemType == 'inboxSender' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowSenderName')" >Sender Name</span>
+									  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxStatus' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowInstruction')" >Instruction</span>
+									  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxDeadline' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemDeadline')">Deadline</span>
+									  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxReceivedOn' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceivedOn')"  >Received On</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxSender Department' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSenderDepartment')" >Sender Department</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Departmentr' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDepartment')" >Receiver Department</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxSender Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSenderDiv')" >Sender Division</span>
+									  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDiv')" >Receiver Division</span>
+								  </td>
+						</tr>
+						  </thead>
+						  <tbody>
+					  <tr *ngFor="let task of task_items | paginate: { itemsPerPage: perPage, currentPage: page, totalItems: totalItemsCount };let i = index;" 
+					  [ngClass]="(task.isOverdue =='true' && task.workflowItemSysStatus == 'ACTIVE' && task.workflowItemStatus != 'Done' && task.workflowItemStatus != 'Archive' && task.workflowItemStatus != 'Reassign' && task.workflowWorkItemType != 'cc')? (task.workflowItemStatus == 'New')? 'email-list-itemnew email-list-itemnew--overdue fontbold':'email-list-itemnew email-list-itemnew--overdue':(task.workflowItemStatus == 'New')?'email-list-itemnew email-list-itemnew--unread fontbold':'email-list-itemnew email-list-itemnew--read'">
+						  <td><label for="check{{task.workflowWorkItemID}}"></label></td>
+						  <td style="padding-left: 15px;font-size: 13px;font-weight: bold;">
+							 <div class="be-checkbox be-select-all">
+										  <input class="be-checkbox" id="check{{task.workflowWorkItemID}}" type="checkbox" (change)="selectCheckbox($event,task)" [(ngModel)]="task.is_checked">
+										<label for="check{{task.workflowWorkItemID}}"></label>
+						  </div>
+							</td> 
+							 <td>
+									<div [ngClass]="(i >=0 && i<=5) ?'tooltipCommentBottom':'tooltipComment'" [ngStyle]="{ 'display': task.workflowItemActionComment == 'undefined' ?'none': task.workflowItemActionComment.trim().length >0?'': 'none'}">
+											<i class="fa fa-comment" style="color:#928df8;" aria-hidden="true" ></i>
+											<span [ngClass]="(i >=0 && i<=5) ?'tooltiptextCommentBottom':'tooltiptextComment'" >
+												<table >
+												<tr>
+													<td valign="top" class="titleOne">{{task.workflowSenderName}} Comment :</td>
+												</tr>
+												<tr>
+														<td valign="top" style="font-weight: normal;">
+																<div style="padding-left:5px;">
+																		{{task.workflowItemActionComment == 'undefined' ?'':task.workflowItemActionComment}}
+																</div>
+															</td>	
+												</tr>
+												</table>
+										</span>
+									</div>
+							</td> 
+							<!-- <td [ngStyle]="{ 'display': currentFilter != 'Done By Sub' ?'none':''}">
+								
+							</td> -->
+						  <td>
+								<span *ngIf = "task.workflowWorkItemType == 'to' && task.isOverdue =='false'" class="circle {{task.workflowWorkItemType}}-circle">●</span>
+								<span *ngIf = "task.workflowWorkItemType == 'Reply' && task.isOverdue =='false'" class="circle {{task.workflowWorkItemType}}-circle">●</span>
+								<!--
+									Check first currentFilter and then Deligated user login is Root sender then its complete other wise its done.
+								-->
+								<span *ngIf = "task.workflowWorkItemType == 'cc' && task.isOverdue =='false'" class="circle {{task.workflowWorkItemType}}-circle">●</span>
+								<span *ngIf = "task.workflowWorkItemType == 'to' && task.isOverdue =='true'" class="circle {{task.workflowWorkItemType}}-circle">●</span>
+								<span *ngIf = "task.workflowWorkItemType == 'Reply' && task.isOverdue =='true'" class="circle {{task.workflowWorkItemType}}-circle">●</span>
+								<span *ngIf = "task.workflowWorkItemType == 'cc' && task.isOverdue =='true'" class="circle {{task.workflowWorkItemType}}-circle">●</span>
+						  </td>
+						  <td> 
+								  <span *ngIf = "task.workflowItemPriority == '1'" ><i class="fa fa-arrow-down" style="color:rgb(66, 148, 202)" aria-hidden="true"></i></span>
+								   <span *ngIf = "task.workflowItemPriority == '0'" ></span>
+								  <span *ngIf = "task.workflowItemPriority == '2'" ><i class="fa fa-exclamation" style="color:red" aria-hidden="true"></i></span>
+						  </td>
+						  <td *ngFor ="let colPref of colPreference" title="{{task.workflowItemSubject}}" style="max-width: 280px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" class="email-list-detail email-list-detailIE" (click)="setPageNumber()" routerLink="/work-flow/inbox/task-details/{{task.workflowWorkItemID}}">
+								  <span style="width:30%;" *ngIf="(colPref.itemType == 'inboxName' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSubject')">
+									  {{ task && task.workflowItemSubject ? task.workflowItemSubject.length > 31 ? task.workflowItemSubject.substring(0,30)+" ..."  : task.workflowItemSubject :''  }}
+								  </span>
+								  <span style="width:15%;" *ngIf="(colPref.itemType == 'inboxSender' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowSenderName')" >{{task.workflowSenderName}}</span>
+								  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxStatus' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowInstruction')" >{{task.workflowInstruction}}</span>
+								  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxDeadline' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemDeadline')">{{task.workflowItemDeadline}}</span>
+								  <span style="width:7%;" *ngIf="(colPref.itemType == 'inboxReceivedOn' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceivedOn')"  >{{task.workflowItemReceivedOn}}</span>
+								  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxSender Department' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSenderDepartment')" >{{task.senderDepartment}}</span>
+								  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Departmentr' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDepartment')" >{{task.workflowItemReceiverDepartment}}</span>
+								  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxSender Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemSenderDiv')" >{{task.senderDivision}}</span>
+								  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDiv')" >{{task.workflowItemReceiverDiv}}</span> 
+								  <span style="width:7%;"  *ngIf="(colPref.itemType == 'inboxReceiver Div' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'workflowItemReceiverDiv')" >{{task.workflowItemReceiverDiv}}</span> 
+						  </td>
+					  </tr>
+					  </tbody>
+				  </table>
+		</div>
+		
+   </div>
+  

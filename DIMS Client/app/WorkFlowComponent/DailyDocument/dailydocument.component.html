@@ -1,0 +1,188 @@
+<div class="email-inbox-header">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="email-title">
+            <span class="icon mdi mdi-archive"></span> Daily Document
+          </div>
+        </div>
+        <div class="col-md-6 text-right">
+        <settings-btn></settings-btn>
+          <button class="btn btn-space btn-primary" data-toggle="tooltip" title="Refresh" (click)="refresh()">
+            <i class="icon icon-left mdi mdi-refresh-sync"></i> Refresh
+          </button>
+        </div>
+      </div>
+</div>
+
+<div class="email-filters">
+  <div class="email-filters-left">
+    <multiple-selection-filter (notifyParent)="toggleSelectAll($event)" [is_all_selected]="is_all_selected"></multiple-selection-filter>
+    <action-btn-daily-document *ngIf="isItemSelected()" (notifytoSetAttachmentId)="setAttachmentID($event)"  [selectedDocuments]="selectedDocuments"></action-btn-daily-document>
+    <sort-btn (notifyParenttofilter)="applyFilter($event)"></sort-btn>
+  </div>
+
+  <div class="email-filters-right">
+    
+<pagination-template #p="paginationApi" (pageChange)="page = getPage($event)" class="pull-right pagination">
+				<span class="pagination-previous paginatioon_left_arrow" [class.disabled]="p.isFirstPage()" style="cursor:pointer">
+					<a *ngIf="!p.isFirstPage()" (click)="leftClicked(p)" >
+  						<button type="button" class="btn btn-default">
+  							<i class="mdi mdi-chevron-left"></i>
+  						</button> 
+  					</a>
+				</span>
+				<span *ngFor="let page of p.pages" [class.current]="p.getCurrent() === page.value">
+					<span *ngIf="p.getCurrent() === page.value">
+   						<span class="pagination_current_page_number">
+   							<font size="3"> Page <input style="width:30px" title="Go to page" (keypress)="onEnterKey($event,p)" type="text" id="currentPageSelected" value ="{{ page.label }}">  of {{totalPages}}  (total {{totalItemsCount}})</font>
+ 						</span>
+ 					</span>
+				</span>
+				<span class="pagination-next paginatioon_right_arrow" [class.disabled]="p.isLastPage()" style="cursor:pointer">
+   					<a *ngIf="!p.isLastPage()" (click)="rightClicked(p)" >  
+   						<button type="button" class="btn btn-default">
+   							<i class="mdi mdi-chevron-right"></i>
+   						</button>
+   					</a>
+ 				</span>
+			</pagination-template>
+      <!-- <div class="btn-group email-pagination-nav">
+        <button type="button" class="btn btn-default"><i class="mdi mdi-chevron-left"></i></button>
+        <button type="button" class="btn btn-default"><i class="mdi mdi-chevron-right"></i></button>
+    </div> -->
+  </div>
+</div>
+
+
+<div class="scrollworkitem">
+<div class="email-header-item email-header-item--unread" style="background-color: #ccc;">
+  <div class="email-list-actions" style="width: 2%;">
+            <div class="be-checkbox">
+               
+            </div>
+      </div>
+
+  <div class="email-header-item">
+  		<span class="docIcon from col-md-1" style="width: 2%;"></span>
+        <span class="col-sm-2">Subject</span>
+        <span class="col-sm-1">Document ID</span>
+        <span *ngFor ="let colPref of colPreference">
+          <span class="col-sm-2" *ngIf="(colPref.itemType == 'dailyDocRefNumber' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'dailyRefNumber')">Reference Number</span>
+        </span>
+        <span class="col-sm-1">Created By</span>
+        <span *ngFor ="let colPref of colPreference">  
+          <span class="col-sm-3" *ngIf="(colPref.itemType == 'dailyDocCorrespType' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'dailyCorrespType')">Correspondence Type</span>
+        </span>
+        <span class="col-sm-1">Date Created</span>
+  </div>  
+  
+  </div>
+  <div *ngFor="let task of tasks | paginate: { itemsPerPage: perPage, currentPage: page, totalItems: totalItemsCount };let i = index;" class="email-list-item email-list-item--unread">
+		<div class="email-list-actions">
+            <div class="be-checkbox">
+                <input id="check{{task.id}}" type="checkbox" (change)="selectCheckbox($event,task)" [(ngModel)]="task.is_checked">
+                <label for="check{{task.id}}"></label>
+            </div>
+      </div>
+
+  <div class="email-list-detail">
+  		<span class="docIcon from col-md-1" style="width: 2%;" [ngSwitch]="task.mimeType"
+            (click)="task.mimeType == 'image/tif' || task.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+task.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+task.id+'&osName='+os_name)">
+            <i *ngSwitchCase="'image/png'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/gif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/jpeg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/jpe'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/bmp'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/jpg'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/tif'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/tiff'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'image/ico'" class="fa fa-file-image-o" style="cursor:pointer;"></i>
+            <i *ngSwitchDefault class="glyphicon glyphicon-file" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="fa fa-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/msword'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/doc'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/dot'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/docx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/dotm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/docm'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/dotx'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.wordprocessingml.template'" class="fa fa-file-word-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.ms-excel'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.spreadsheetml.template'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xls'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xlsx'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xla'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xlt'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xltm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xlsm'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xlam'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/xlsb'" class="fa fa-file-excel-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.ms-powerpoint'" class="fa fa-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.presentation'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.template'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/vnd.openxmlformats-officedocument.presentationml.slideshow'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/ppt'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/pot'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/pps'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/ppa'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/pptx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/potx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/ppsx'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/ppam'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/pptm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/potm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/ppsm'" class="fa fa-file-powerpoint-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/x-rar-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/octet-stream'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/x-zip-compressed'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/x-zip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/x-gzip'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/x-rar'" class="fa fa-file-archive-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>                 
+            <i *ngSwitchCase="'application/x-pdf'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="'application/acrobat'" class="fa fa-file-pdf-o" style="cursor:pointer;"></i>
+        </span>
+        <a (click)="task.mimeType == 'image/tif' || task.mimeType == 'image/tiff' ? viewDocument(viewer_url+'id='+task.id+'&objectStoreName=DIMS&objectType=document') : viewDocument(base_url+'/FilenetService/viewDocument?docId='+task.id+'&osName='+os_name)" target="_blank"  style="cursor:pointer;">
+          <span class="col-sm-2" title="{{task.subject}}" style="max-width: 280px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{task.subject}}</span>
+        </a>
+        
+        <span class="col-sm-1" >{{task.documentID}}</span>
+
+        <span *ngFor ="let colPref of colPreference">
+            <span class="col-md-2" *ngIf="(colPref.itemType == 'dailyDocRefNumber' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'dailyRefNumber')">{{task.referenceNo}}</span>
+        </span>
+        <span class="col-sm-1">{{task.createdBy}}</span>
+        <span class="pull-right actions actionsDaily" *ngIf="task.showOptions">
+          <!-- <a (click)="viewDocument(base_url+'/FilenetService/viewDocument?docId='+task.id+'&osName='+os_name)" target="_blank"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a> -->
+          <a (click)="viewDocument(viewer_url+'id='+task.id+'&objectStoreName=DIMS&objectType=document')" target="_blank" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open task_glyphicon" title="View Document"></span></a>
+	        <a (click)="setAttachmentDoc(task)" role="button" data-toggle="modal" data-target="#infoModal"><span class="glyphicon glyphicon-info-sign task_glyphicon" title="Document Properties"></span></a>
+	        <a [attr.href]="base_url+'/FilenetService/downloadDocument?docId='+task.id+'&osName='+os_name"><span class="glyphicon glyphicon-save task_glyphicon" title="Download Documents"></span></a>
+	        <a (click)="sendMail(task.id, task.subject)" role="button"><span class="glyphicon glyphicon glyphicon-share-alt task_glyphicon" title="Send By Outlook"></span></a>
+          <a (click)="openDocumentActionPopup(task, documentMailer)" role="button"><span class="glyphicon glyphicon-envelope task_glyphicon" title="Send By Webmail"></span></a>
+        </span>
+
+        <span *ngFor ="let colPref of colPreference">
+          <span *ngIf="(colPref.itemType == 'dailyDocCorrespType' && colPref.coloumnEnabled == 'true' && colPref.columnName == 'dailyCorrespType')">
+            <span *ngIf="task.CorrespondenceType == 1" class="col-sm-3">Internal Incoming</span>
+            <span *ngIf="task.CorrespondenceType == 2" class="col-sm-3">Internal Outgoing</span>
+            <span *ngIf="task.CorrespondenceType == 3" class="col-sm-3">External Incoming</span>
+            <span *ngIf="task.CorrespondenceType == 4" class="col-sm-3">External Outgoing</span>
+          </span>
+        </span>
+        <span class="col-sm-1">{{task.dateCreated}}</span>
+  </div>  
+
+    
+  </div>
+</div> 
+
+<document-info [currentTab]='currentTab' [selectedAttachmentID]="selectedAttachmentID" [selectedDocument]="selectedDocument" (docAfterChange)="handleDocumentChange($event)"></document-info>
+<document-mailer #documentMailer></document-mailer>
+
+
+

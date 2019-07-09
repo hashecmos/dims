@@ -1,0 +1,73 @@
+<div class="leftMenu browseMenu">
+  <div class="aside-nav">
+    <ul class="nav">
+      <li><a routerLinkActive="active1" routerLink="/browse/document-search" class="left-content"><i class="icon mdi mdi-search"></i>Search Results</a></li>
+    </ul>
+  </div>
+  <hr>
+  <!--<tree-root [nodes]="nodes" (onActivate)="setSelectedFolder($event)">
+    <template #treeNodeTemplate let-node>
+          <span class="folder_node tree-node-expanded">
+          <i class="glyphicon glyphicon-folder-close"></i>
+            {{ node.data.name }}
+          </span>
+      </template>
+  </tree-root> -->
+  
+
+	<div class="scrolltree">  
+			<p-tree [value]="nodesList" selectionMode="single" [(selection)]="selectedNode" (onNodeSelect)="setSelectedFolder($event)" 
+			(onNodeContextMenuSelect)="setSelectedFolderForContextMenu($event)" [styleClass]="'.ui-tree .ui-tree-container'" (onNodeExpand)="loadNode($event)" [contextMenu]="cm" style=""></p-tree>
+	</div>
+	
+	<div id="newfolder" class="modal fade" role="dialog">
+		<div class="modal-dialog checkout-modal colored-header colored-header-primary">
+			<div class="modal-content">
+			<div class="modal-header">
+					<button class="close" data-dismiss="modal" type="button" aria-label="Close" (click)="clearAlert()"><span aria-hidden="true" class="mdi mdi-close"></span></button>
+					<modal-header>
+								 <h3 class="modal-title">New Folder</h3>
+						</modal-header>
+			</div>
+			<div class="modal-body">
+				<form class="form" role="form" (ngSubmit)="actionNewFolder($event)">
+					
+				<div class="form-group" style="padding-top:5%;padding-bottom:2%;">
+				<div id="folderError" class="alert alert-danger fade in" style="display :none;"> Please select a folder from the folder tree and try again</div>
+				<div id="errorAlert" class="alert alert-danger fade in" style="display :none;"> A folder name cannot contain any of the following characters: \/:*?"<>|</div>
+					<div class="input-group">
+					<span class="input-group-addon"><i class="glyphicon glyphicon-folder-open"></i></span>
+					<input class="form-control" [(ngModel)]="foldername" type="text" name="foldername" placeholder="Folder Name" required="true">
+					</div>
+				</div>
+	
+				<div class="form-group">
+					<div class="controls">
+					<button class="btn btn-primary reply_btn" type="submit">Create</button>
+					</div>
+				</div>
+	
+				</form>
+			</div>
+			</div>
+		</div>
+		</div>
+		<div style="top:10px; position:fixed; display:block">
+	<p-contextMenu #cm [model]="items"></p-contextMenu>
+</div>
+</div>
+
+
+<!-- old tree  -->
+<!-- <div class="col-sm-3 col-md-2 leftMenu browseMenu">
+  <a routerLinkActive="active1" routerLink="/browse/document-search" class="left-content">Search Results</a>
+  <hr>
+  <Tree [nodes]="nodes" (onActivate)="setSelectedFolder($event)">
+    <template #treeNodeTemplate let-node>
+          <span class="folder_node tree-node-expanded">
+          <i class="glyphicon glyphicon-folder-close"></i>
+            {{ node.data.name }}
+          </span>
+      </template>
+  </Tree>
+</div> -->

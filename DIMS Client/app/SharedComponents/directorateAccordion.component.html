@@ -1,0 +1,133 @@
+<accordion>
+  <!-- <accordion-group *ngFor="let directorate of directorates" heading="{{directorate.employeeDirectorate}}" (onOpen)="loadUsersForDirectorate(directorate)">
+    <div>
+      <accordion>
+        <accordion-group heading="Users">
+          <div>
+            <div class="container to_cc">
+              <table class="table">
+                <tbody>
+                  <tr *ngFor="let user of directorate.users">
+                    <td>{{user.employeeName}}</td>
+                    <td>{{user.employeeDesignation}}</td>
+                    <div *ngIf="!checkboxes">
+                      <td *ngIf="currentTask != 'cc'">To
+                        <input type="radio" name="to_cc" [checked]="isInToList(user)" (change)="selectedToRadio($event,user)">
+                      </td>
+                      <td *ngIf="isCcAvailable">CC
+                        <input type="radio" name="to_cc" [checked]="isInCcList(user)" (change)="selectedCcRadio($event,user)">
+                      </td>
+                    </div>
+                    <div *ngIf="checkboxes">
+                      <td><input type="checkbox" [checked]="isChecked(user)" (change)="selectedCheckbox($event,user)"></td>
+                    </div>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </accordion-group>
+        <accordion-group heading="Departments" (onOpen)="loadDepartmentsForDirectorate(directorate)">
+          <div>
+            <accordion>
+              <accordion-group *ngFor="let department of directorate.departments" heading="{{department.department}}">
+                <accordion>
+                  <accordion-group heading="Users" (onOpen)="loadUsersForDepartment(department)">
+                    <div>
+                      <div class="container to_cc">
+                        <table class="table">
+                          <tbody>
+                            <tr *ngFor="let user of department.users">
+                              <td>{{user.employeeName}}</td>
+                              <td>{{user.employeeDesignation}}</td>
+                              <div *ngIf="!checkboxes">
+                                <td *ngIf="currentTask != 'cc'">To
+                                  <input type="radio" name="to_cc" [checked]="isInToList(user)" (change)="selectedToRadio($event,user, recipientSelectionFromTab+'ToList')">
+                                </td>
+                                <td>CC
+                                  <input type="radio" name="to_cc" [checked]="isInCcList(user)" (change)="selectedCcRadio($event,user, recipientSelectionFromTab+'CcList')">
+                                </td>
+                              </div>
+                              <div *ngIf="checkboxes">
+                                <td><input type="checkbox" [checked]="isChecked(user)" (change)="selectedCheckbox($event,user)"></td>
+                              </div>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </accordion-group>
+                  <accordion-group heading="Divisions" (onOpen)="loadDivisionsForDepartment(department)">
+                    <div>
+                      <accordion-group *ngFor="let division of department.divisions" heading="{{division.division}}" (onOpen)="loadUsersForDivision(division)">
+                        <div>
+                          <div class="container to_cc">
+                            <table class="table">
+                              <tbody>
+                                <tr *ngFor="let user of division.users">
+                                  <td>{{user.employeeName}}</td>
+                                  <td>{{user.employeeDesignation}}</td>
+                                  <div *ngIf="!checkboxes">
+                                    <td *ngIf="currentTask != 'cc'">To
+                                      <input type="radio" name="to_cc" [checked]="isInToList(user)" (change)="selectedToRadio($event,user, recipientSelectionFromTab+'ToList')">
+                                    </td>
+                                    <td>CC
+                                      <input type="radio" name="to_cc" [checked]="isInCcList(user)" (change)="selectedCcRadio($event,user, recipientSelectionFromTab+'CcList')">
+                                    </td>
+                                  </div>
+                                  <div *ngIf="checkboxes">
+                                    <td><input type="checkbox" [checked]="isChecked(user)" (change)="selectedCheckbox($event,user)"></td>
+                                  </div>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </accordion-group>
+                    </div>
+                  </accordion-group>
+                </accordion>
+              </accordion-group>
+            </accordion>
+          </div>
+        </accordion-group>
+      </accordion>
+    </div>
+  </accordion-group>
+  
+  <accordion-group heading="My Default Recipiant">
+  </accordion-group> --> 
+  
+<accordion-group *ngFor="let division of divisions" heading="My Division" (onOpen)="loadUsersForDivision(division)">
+	<div>
+		<div class="container to_cc">
+			<table class="table">
+				<tbody>
+					<tr *ngFor="let user of division.users">
+						<td>{{user.employeeName}}</td>
+						<td>{{user.employeeDesignation}}</td>
+						<div *ngIf="!checkboxes">
+							<td *ngIf="currentTask != 'cc'">To <input type="radio"
+								name="to_cc" [checked]="isInToList(user)"
+								(change)="selectedToRadio($event,user, recipientSelectionFromTab+'ToList')">
+							</td>
+							<td>CC <input type="radio" name="to_cc"
+								[checked]="isInCcList(user)"
+								(change)="selectedCcRadio($event,user, recipientSelectionFromTab+'CcList')">
+							</td>
+						</div>
+						<div *ngIf="checkboxes">
+							<td><input type="checkbox" [checked]="isChecked(user)"
+								(change)="selectedCheckbox($event,user)"></td>
+						</div>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</accordion-group>
+ <!--  <accordion-group heading="My Department">
+  </accordion-group>
+  <accordion-group heading="Cross Department List">
+  </accordion-group> -->
+</accordion>
